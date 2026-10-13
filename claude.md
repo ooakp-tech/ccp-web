@@ -67,3 +67,82 @@ Now, based on all of the above, generate:
 1. The full React project file tree.
 2. The complete code for each file.
 3. A short explanation of how the sign‑up flow works end‑to‑end and where to plug in real APIs later.
+
+
+---
+
+# Project status (updated 2026-10-12)
+
+Everything above is the original brief. This section records what has been built so work can resume without re-deriving it. Keep it current when the project changes.
+
+## State of the work
+
+- The Fan sign-up flow from `VELVET FX - FAN - Sign up Process - with email and password - 10.1.26.pdf` (7 pages, phone mockup) is fully implemented, frontend only, with a mocked API.
+- A full-width desktop layout (1024px and up) was added on 2026-10-12 at the user's request. The PDF has no desktop design, so that layout is our own.
+- `npm run build` passes. The flow was clicked through in headless Chrome at phone and desktop sizes with no console errors.
+- Not done: hosting on a real IIS server has never been tested (only `vite preview`).
+- Git: the desktop-layout changes are uncommitted on `main` (`src/styles/desktop.css` is new). Commit only when the user asks.
+- The source PDFs and the asset pack folder (`velvet-fx-frontend-assets-V2`) are no longer in the repo folder; the assets the app uses are already copied to `public/assets/`.
+
+## Stack and commands
+
+Vite 6, React 18, TypeScript, react-router-dom 6, fonts bundled with `@fontsource-variable/inter` and `@fontsource-variable/montserrat` (no CDN). Node 20+.
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # tsc --noEmit && vite build -> dist/ (hashed files in dist/static)
+npm run preview    # serve dist/ locally
+```
+
+There is no automated test suite in the repo. Earlier checks used throwaway Puppeteer scripts kept outside the project.
+
+## Where things are
+
+- `src/services/api.ts`: every placeholder API call (`registerUser`, `resendVerificationEmail`, `verifyHumanChallenge`, `verifyEmail`, `signIn`, `signInWithProvider`, `signOut`, `getVerificationMessage`), each with a `TODO: call API` comment and a suggested endpoint. `src/services/mockDb.ts` is the pretend user table in `sessionStorage`.
+- `src/context/SessionContext.tsx`: user, pending e-mail and marketing opt-in, mirrored to `sessionStorage` (`velvetfx.session`). No passwords are stored.
+- `src/routes/paths.ts`: `PATHS` for the PDF screens and `PLACEHOLDER_ROUTES` for every link whose destination the PDF does not show. `src/routes/AppRoutes.tsx` holds the `/home` gate.
+- `src/config.ts`: `DEMO_MODE` (turns the simulated inbox on or off), `MOCK_LATENCY_MS`, `asset()`.
+- `src/styles/`: `tokens.css`, `base.css`, `components.css`, `screens.css` are the phone layout from the mockup; `desktop.css` holds all desktop overrides in one `@media (min-width: 1024px)` block, plus a 1280px block for the inline landing nav.
+- `public/web.config`: IIS SPA rewrite (needs the URL Rewrite module), MIME types, cache headers. `public/assets/`: logos, icons and photos.
+- `README.md`: install, run, build, IIS notes, screen mapping, desktop layout table, assumptions.
+
+## Screens and routes
+
+| PDF page | Screen | Route | Component |
+| --- | --- | --- | --- |
+| 3 left | Landing | `/` | `pages/LandingPage` |
+| 3 right | Public menu overlay | `/` | `components/PublicMenu` |
+| 4 left | Fan sign-up | `/signup` | `pages/SignUpPage` |
+| 4 right | Check your email | `/home` while unverified | `pages/CheckEmailPage` |
+| 5 | Verification e-mail | `/mock-inbox` (demo only) | `pages/MockInboxPage` |
+| – | E-mail link target | `/verify-email?token=…` | `pages/VerifyEmailPage` |
+| 6 left | Sign-in | `/signin` | `pages/SignInPage` |
+| 6 centre | Home | `/home` when signed in | `pages/HomePage` |
+| 6 right | Account drawer | `/home` | `components/AccountDrawer` |
+
+## Conventions to keep
+
+- Phone layout must keep matching the PDF. Put desktop-only changes in `desktop.css`; elements that exist only on desktop are hidden by default at the end of `screens.css`.
+- Sizes inside screens use container units (`cqw`/`cqh`) relative to `.app-shell`, always capped with `min()`/`clamp()`.
+- Photos go through `components/Picture` (AVIF with WebP fallback), logos through `components/BrandLogo`, icons through `components/Icon` (CSS mask).
+- Mark anything not shown in the PDF with an `ASSUMPTION` comment and list it in the README.
+- No real network calls: new backend interactions go in `src/services/api.ts` as mocked functions.
+
+## Decisions made without a design (open to change)
+
+- Destinations not in the PDF (menu links, policies, Forgot password, Join as a Creator, tabs, drawer entries) open a generic `PlaceholderPage`.
+- Validation: well-formed e-mail; new password needs 8+ characters with a letter and a number. Error messages are ours.
+- "Send again" needs the human check first; "Change email" returns to sign-up with the address prefilled; the dialog's × returns to landing.
+- Google/X sign-in is simulated; the Cloudflare box is a stand-in for the real Turnstile widget.
+- Display name and @handle are derived from the e-mail by the mock.
+- Fonts are Inter and Montserrat as the closest match; photos come from the asset pack and differ from the people in the mockup.
+- Desktop: landing shows the menu links and a "Login" button inline from 1280px; sign-up/sign-in and check-email are split screens with a photo; home's tab bar becomes a top bar; windows under 1024px keep the centred phone column.
+
+## Possible next steps
+
+- Review the desktop layout with the user and adjust.
+- Test the build on a real IIS site with the URL Rewrite module.
+- Replace placeholder pages as their designs arrive (Creator sign-up has its own PDF, not yet supplied).
+- Wire `src/services/api.ts` to the ASP.NET Core backend when it exists.
+- Add an in-repo end-to-end test if the user wants one.
