@@ -1,0 +1,695 @@
+/* ---------- Button ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1.5px solid transparent;
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    filter 0.15s,
+    transform 0.05s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:hover {
+  filter: brightness(1.12);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  filter: none;
+  opacity: 0.65;
+}
+
+.btn--pill {
+  border-radius: 999px;
+}
+
+.btn--rounded {
+  border-radius: 12px;
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+.btn--sm {
+  min-height: 44px;
+  padding: 0 18px;
+  font-size: 15px;
+}
+
+.btn--primary {
+  border-color: #f2a2f7b3;
+  background: linear-gradient(100deg, #7a1798 0%, #b526c4 45%, #e24be8 100%);
+  box-shadow:
+    0 0 18px #e31adf73,
+    inset 0 1px 0 #ffffff59,
+    inset 0 -6px 12px #5a0c7a66;
+}
+
+.btn--outline {
+  border-color: #d67cf2;
+  background: #0f0b1acc;
+  box-shadow:
+    0 0 12px #c94df066,
+    inset 0 0 10px #c94df026;
+}
+
+/* "Send again" on Check your email */
+.btn--deep {
+  border-color: var(--velvet-pink);
+  background: linear-gradient(100deg, #1d0f36, #43186f 60%, #6a1f9a);
+  box-shadow: 0 0 16px #e31adf66;
+}
+
+/* "Login" in the public menu */
+.btn--dark {
+  border-color: #343437;
+  background: #1b1b1d;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 2px solid #ffffff55;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* Small rectangular buttons: "Menu" (landing) and "Close" (public menu) */
+.chip-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #ffffff2e;
+  border-radius: 8px;
+  background: #2a1c3fb3;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip-button--solid {
+  height: 42px;
+  padding: 0 18px;
+  border-color: #3a3a3d;
+  background: #2b2b2d;
+  font-size: 15px;
+}
+
+/* ---------- TextInput / PasswordInput ---------- */
+.field__control {
+  position: relative;
+}
+
+.field__input {
+  width: 100%;
+  height: 48px;
+  padding: 0 18px;
+  border: 1px solid #6b5580;
+  border-radius: 12px;
+  background: #231d30d9;
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.field__control:has(.field__toggle) .field__input {
+  padding-right: 54px;
+}
+
+.field__input::placeholder {
+  color: #b9aec8;
+  opacity: 1;
+}
+
+.field__input:focus {
+  border-color: var(--velvet-pink);
+  box-shadow: 0 0 0 3px #e31adf33;
+}
+
+.field__input:disabled {
+  opacity: 0.7;
+}
+
+/* Keep the dark field when the browser autofills saved credentials. */
+.field__input:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  box-shadow: 0 0 0 1000px #231d30 inset;
+  caret-color: #fff;
+}
+
+.field--invalid .field__input {
+  border-color: #ff5c7a;
+}
+
+.field__toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #d9cfe6;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.field__error {
+  margin: 6px 4px 0;
+  color: #ff8fa3;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.form-message {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid;
+  border-radius: 10px;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.form-message--error {
+  border-color: #ee083688;
+  background: #ee083622;
+  color: #ffb3c0;
+}
+
+.form-message--success {
+  border-color: #1fae5a88;
+  background: #1fae5a22;
+  color: #b4f2cf;
+}
+
+/* ---------- ToggleSwitch ---------- */
+.toggle {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #4a4058;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.toggle[aria-checked='true'] {
+  background: linear-gradient(90deg, #b026c9, #e44be8);
+  box-shadow: 0 0 10px #e31adf66;
+}
+
+.toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.18s;
+}
+
+.toggle[aria-checked='true'] .toggle__thumb {
+  transform: translateX(20px);
+}
+
+/* ---------- Shared bits ---------- */
+/* App mark tile in the top-left corner of photo screens */
+.app-mark {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  box-shadow: 0 0 14px #b13cf580;
+}
+
+.round-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1.5px solid var(--velvet-pink);
+  border-radius: 50%;
+  background: #150f20;
+  box-shadow: 0 0 12px #e31adf66;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* DEMO_MODE shortcut to the simulated mailbox - not part of the mockup */
+.demo-pill {
+  position: absolute;
+  top: 18px;
+  right: 14px;
+  padding: 6px 12px;
+  border: 1px dashed var(--velvet-pink);
+  border-radius: 999px;
+  background: #0d0b17d9;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ---------- HumanCheck (Cloudflare Turnstile placeholder) ---------- */
+.human-check-wrap {
+  width: min(100%, 310px);
+  margin: 0 auto;
+}
+
+.human-check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66px;
+  padding: 0 12px;
+  border: 1px solid #3d3648;
+  border-radius: 3px;
+  background: #1b1822;
+}
+
+.human-check--invalid {
+  border-color: #ff5c7a;
+}
+
+.human-check__box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: #e6e0ee;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.human-check__mark {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 2px solid #e6e0ee;
+  border-radius: 3px;
+  background: #222;
+}
+
+.human-check__box--checking .human-check__mark {
+  border-color: #5c5568;
+  border-top-color: #f6821f;
+  border-radius: 50%;
+  background: none;
+  animation: spin 0.8s linear infinite;
+}
+
+.human-check__box--verified {
+  cursor: default;
+}
+
+.human-check__box--verified .human-check__mark {
+  border-color: #2db35d;
+  border-radius: 50%;
+  background: #2db35d;
+}
+
+.human-check__box--verified .human-check__mark::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 7px;
+  width: 6px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.human-check__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.human-check__brand-name {
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.human-check__links {
+  color: #a79fb3;
+  font-size: 9.5px;
+}
+
+.human-check__links a {
+  color: inherit;
+}
+
+/* ---------- PublicMenu (PDF p.3 right) ---------- */
+.public-menu {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 16px;
+  overflow-y: auto;
+  background: #000;
+}
+
+.public-menu__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.public-menu__logo {
+  width: auto;
+  height: min(9.4cqw, 44px);
+}
+
+.public-menu__nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.public-menu__nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.public-menu__nav li + li {
+  border-top: 1px solid #2b2140;
+}
+
+.public-menu__nav a {
+  display: block;
+  padding: 0.2em 0;
+  color: #fff;
+  font-size: clamp(26px, min(10.6cqw, 5.7cqh), 50px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.public-menu__nav a:hover {
+  color: var(--velvet-link);
+}
+
+.public-menu__footer {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.public-menu__footer .btn {
+  flex: 1 1 auto;
+  padding: 0 12px;
+  font-size: min(3.7cqw, 16px);
+}
+
+/* ---------- BottomNav (PDF p.6 centre) ---------- */
+.bottom-nav {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 8px 4px calc(6px + env(safe-area-inset-bottom));
+  border-top: 1px solid #ececf0;
+  background: #fff;
+  color: #77737d;
+}
+
+.bottom-nav__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 4px 0 12px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bottom-nav__item.is-active {
+  color: #7b1fa2;
+  font-weight: 700;
+  cursor: default;
+}
+
+.bottom-nav__dot {
+  position: absolute;
+  bottom: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--velvet-fuchsia);
+}
+
+.bottom-nav__avatar {
+  position: relative;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: #dcdce0;
+  color: var(--velvet-light-text);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.bottom-nav__badge {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  background: #f0124a;
+}
+
+/* ---------- AccountDrawer (PDF p.6 right) ---------- */
+.drawer {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: flex;
+}
+
+.drawer__scrim {
+  display: flex;
+  width: 14%;
+  flex: none;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0;
+  border: 0;
+  background: #0d0b1759;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  color: #fff;
+  cursor: pointer;
+}
+
+.drawer__tab {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 5px 14px;
+  background: linear-gradient(135deg, #150d1f, #3a1250);
+  font-size: 10px;
+  text-align: left;
+}
+
+.drawer__tab-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.drawer__panel {
+  flex: 1;
+  padding: 26px 22px 24px 28px;
+  overflow-y: auto;
+  outline: none;
+  background: #fbfafc;
+  box-shadow: -8px 0 30px #00000059;
+  color: var(--velvet-light-text);
+  animation: drawer-in 0.22s ease-out;
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0.4;
+    transform: translateX(24%);
+  }
+}
+
+.drawer__user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.drawer__avatar {
+  position: relative;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #3a1a52, #150c22);
+  box-shadow: 0 0 0 2px #d9a3ef;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.drawer__online {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fbfafc;
+  border-radius: 50%;
+  background: #22dd55;
+}
+
+.drawer__identity {
+  min-width: 0;
+}
+
+.drawer__name,
+.drawer__handle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer__name {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.drawer__handle {
+  color: #6f6878;
+  font-size: 15px;
+}
+
+.drawer__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drawer__list--divided {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--velvet-light-divider);
+}
+
+.drawer__item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 50px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.drawer__item:hover .drawer__label {
+  color: #7b1fa2;
+}
+
+.drawer__icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.drawer__icon--highlight {
+  background: #f1dbfa;
+}
+
+.drawer__label {
+  flex: 1;
+}
+
+.drawer__balance {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: #5d4a66;
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 500;
+}

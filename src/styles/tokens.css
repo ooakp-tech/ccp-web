@@ -1,0 +1,32 @@
+/* Palette and gradients from the asset pack (visual-tokens.css), plus the
+   font stacks. Colours were sampled from the flattened PDF screens. */
+:root {
+  --velvet-bg: #0d0b17;
+  --velvet-surface: #191421;
+  --velvet-field: #231d30;
+  --velvet-text: #faf7ff;
+  --velvet-muted: #c3b9d1;
+  --velvet-violet: #7e21ef;
+  --velvet-fuchsia: #e31adf;
+  --velvet-border: #694274;
+  --velvet-light-surface: #ffffff;
+  --velvet-light-text: #17121f;
+  --velvet-light-divider: #eae5ed;
+  --velvet-danger: #ee0836;
+  --velvet-action-gradient: linear-gradient(115deg, #7717e9, #b411d4 55%, #f12ce0);
+  --velvet-heading-gradient: linear-gradient(90deg, #b03cfa, #fa47da);
+  --velvet-auth-background:
+    radial-gradient(ellipse at 100% 15%, #6a126146, transparent 48%),
+    radial-gradient(ellipse at 0% 75%, #71106366, transparent 50%),
+    linear-gradient(135deg, #181123, #0d0b17 55%, #231029);
+  --velvet-action-glow: 0 0 18px #e31adf66;
+
+  --velvet-pink: #e879f9;
+  --velvet-link: #f07cf5;
+
+  --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Montserrat Variable', 'Montserrat', var(--font-ui);
+
+  /* Width of the phone column the mobile mockup is rendered in on large screens. */
+  --shell-max-width: 480px;
+}

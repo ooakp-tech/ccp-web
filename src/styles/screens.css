@@ -1,0 +1,680 @@
+/* ---------- Landing (PDF p.3 left) ---------- */
+.landing {
+  justify-content: space-between;
+  isolation: isolate;
+  background: var(--velvet-bg);
+}
+
+.landing__bg {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+}
+
+.landing__bg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+}
+
+/* Scrim: keeps the header and the headline/CTA area readable over the photo. */
+.landing__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #0d0b1780 0%, transparent 14%, transparent 45%, #0d0b17b3 62%, #0d0b17 82%);
+}
+
+.landing__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 0;
+}
+
+.landing__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.landing__mark {
+  width: 44px;
+  height: 44px;
+}
+
+.landing__wordmark {
+  width: auto;
+  height: 22px;
+}
+
+.landing__content {
+  padding: 24px 20px 22px;
+}
+
+.landing__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: min(9.4cqw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+}
+
+.landing__title span {
+  display: block;
+  width: fit-content;
+  background: linear-gradient(90deg, #fff, #ead9ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing__title .landing__title-accent {
+  background-image: linear-gradient(90deg, #f6bcff, #e83df0 55%, #ff9af6);
+  filter: drop-shadow(0 0 10px #e31adf80);
+}
+
+.landing__copy {
+  margin: 10px 0 18px;
+  color: #f1eaf8;
+  font-size: min(4.4cqw, 20px);
+  line-height: 1.3;
+}
+
+.landing__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.landing__actions .btn {
+  min-height: 50px;
+  padding: 0 10px;
+  font-size: min(4cqw, 18px);
+}
+
+.landing__cta-creator {
+  flex: 1.25;
+  border-color: #f08cffb3;
+  background: linear-gradient(100deg, #d41fe8, #a01fe6 55%, #7a22e0);
+}
+
+.landing__cta-fan {
+  flex: 1;
+  border-color: #9a45f2;
+  background: #120c20d9;
+  box-shadow: 0 0 12px #7e21ef80;
+}
+
+/* ---------- Sign up / Sign in (PDF p.4 left, p.6 left) ---------- */
+.auth {
+  padding: 0 clamp(22px, 10cqw, 48px);
+  isolation: isolate;
+  background: var(--velvet-auth-background);
+}
+
+/* Soft light streaks behind the form, as in the mockup background. */
+.auth::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(60% 28% at 50% 0%, #7a1fa055, transparent 70%),
+    linear-gradient(152deg, transparent 3%, #c43fe033 4.5%, transparent 9%),
+    linear-gradient(28deg, transparent 4%, #a12fd22e 6%, transparent 11%),
+    linear-gradient(208deg, transparent 5%, #c43fe02b 7%, transparent 12%),
+    linear-gradient(332deg, transparent 4%, #8f2fd62b 6%, transparent 10%);
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+.auth__header {
+  padding-top: clamp(14px, 4cqw, 24px);
+}
+
+.auth__logo {
+  display: block;
+  width: min(56cqw, 270px);
+  height: auto;
+  margin: 0 auto;
+}
+
+.auth__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.auth__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* The mockup fits the whole form on one phone screen, so auth controls are
+   a little more compact than the rest of the app. */
+.auth .btn {
+  min-height: 42px;
+  font-size: 15px;
+}
+
+.auth .field__input {
+  height: 42px;
+  font-size: 15px;
+}
+
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
+  color: #b9aec8;
+  font-size: 14px;
+}
+
+.auth__divider::before,
+.auth__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #6f6480;
+}
+
+.social-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.auth__submit {
+  margin-top: 8px;
+}
+
+.auth__alt {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.auth__forgot {
+  display: inline-block;
+  margin: 10px 2px 0;
+  color: var(--velvet-link);
+  font-size: 13.5px;
+  text-decoration: none;
+}
+
+.auth__legal {
+  margin: 6px 0 0;
+  color: var(--velvet-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.auth__legal a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.stay-updated__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.stay-updated h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stay-updated p {
+  margin: 2px 0 0;
+  color: var(--velvet-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.stay-updated strong {
+  color: #fff;
+}
+
+.auth__footer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: auto;
+  padding: 16px 0 18px;
+  color: #b9aec8;
+  font-size: 12px;
+}
+
+.auth__footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.auth__footer a:hover,
+.auth__forgot:hover,
+.auth__legal a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Check your email (PDF p.4 right) ---------- */
+.check-email {
+  background: var(--velvet-bg);
+}
+
+.check-email__photo {
+  position: relative;
+  flex: none;
+  aspect-ratio: 3 / 2.15;
+}
+
+.check-email__photo img:not(.app-mark) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
+
+.check-email__dialog {
+  position: relative;
+  flex: 1;
+  margin-top: -22px;
+  padding: 18px 20px 24px;
+  border: 1px solid #c44cf0aa;
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  background: linear-gradient(180deg, #191421 0%, #1d1228 55%, #2a1036 100%);
+  box-shadow: 0 -6px 30px #b13cf540;
+}
+
+.check-email__dialog h1 {
+  margin: 6px 0 10px;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.check-email__dialog > p:not(.form-message) {
+  margin: 0 0 12px;
+  color: #c9c0d6;
+  font-size: 16.5px;
+  line-height: 1.45;
+}
+
+.check-email__sent strong {
+  display: block;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.check-email__dialog > .check-email__prompt {
+  margin-top: 18px;
+}
+
+.check-email__dialog > .form-message {
+  margin-top: 12px;
+}
+
+.check-email__change {
+  display: block;
+  width: fit-content;
+  margin: 16px auto 18px;
+  color: #b77bff;
+  font-size: 16.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ---------- Simulated mailbox + verification e-mail (PDF p.5) ---------- */
+.mail {
+  background: #f1f2f4;
+  color: var(--velvet-light-text);
+}
+
+.mail__bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px 12px 8px;
+  border-bottom: 1px solid #e6e6ea;
+  background: #fafafb;
+}
+
+.mail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #1a73e8;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.mail__demo {
+  padding: 4px 10px;
+  border: 1px dashed #b9b2c4;
+  border-radius: 999px;
+  color: #6b6475;
+  font-size: 12px;
+}
+
+.mail__head {
+  padding: 18px 20px;
+  background: #fafafb;
+}
+
+.mail__head h1 {
+  margin: 0 0 16px;
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.mail__sender {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mail__sender img {
+  border-radius: 50%;
+}
+
+.mail__sender strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.mail__sender span {
+  color: #6b6b73;
+  font-size: 14.5px;
+}
+
+.mail__body {
+  padding: 22px 20px 26px;
+}
+
+.mail-card {
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--velvet-light-surface);
+  box-shadow: 0 2px 14px #17121f14;
+}
+
+.mail-card__content {
+  padding: 28px 24px 8px;
+}
+
+.mail-card__logo {
+  display: block;
+  width: min(100%, 250px);
+  height: auto;
+  margin-bottom: 22px;
+}
+
+.mail-card h2 {
+  margin: 0 0 14px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.mail-card p {
+  margin: 0 0 22px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.mail-card__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  margin-bottom: 22px;
+  border-radius: 999px;
+  background: linear-gradient(100deg, #141022, #17121f 60%, #2a1040);
+  box-shadow:
+    0 0 0 1px #e879f955,
+    0 4px 18px #e31adf73;
+  color: #fff;
+  font-size: 16.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mail-card__cta .icon {
+  color: var(--velvet-link);
+}
+
+.mail-card p.mail-card__small {
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.mail-card__small a {
+  color: var(--velvet-violet);
+  text-decoration: none;
+}
+
+.mail-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  background: #f7f7f9;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mail-card__footer strong {
+  font-weight: 600;
+}
+
+.mail-card__footer span {
+  padding-left: 20px;
+  border-left: 1px solid #e0e0e6;
+  color: #6b6b73;
+}
+
+.mail__legal {
+  margin: 18px 0 0;
+  color: #8a8a93;
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.mail__empty {
+  padding: 40px 24px;
+  color: #6b6b73;
+  text-align: center;
+}
+
+.mail__empty a {
+  color: var(--velvet-violet);
+}
+
+/* ---------- Home (PDF p.6 centre) ---------- */
+.home {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--velvet-bg);
+}
+
+.home__scroll {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.home-hero {
+  position: relative;
+  padding: 0 16px 26px;
+  isolation: isolate;
+  text-align: center;
+}
+
+.home-hero__photo {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+}
+
+.home-hero__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+}
+
+.home-hero__photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, #12071fcc 62%, var(--velvet-bg) 94%);
+}
+
+.home-hero__content {
+  padding-top: 78cqw;
+}
+
+.home-hero h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: min(6.3cqw, 30px);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.home-hero__soft {
+  color: #e3c9ff;
+}
+
+.home-hero__accent {
+  background: linear-gradient(90deg, #f29bff, #e83df0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.home-hero p {
+  max-width: 16.3em;
+  margin: 4px auto 18px;
+  color: #f3e8ff;
+  font-family: var(--font-display);
+  font-size: min(5.4cqw, 26px);
+  font-weight: 600;
+  line-height: 1.22;
+}
+
+.home-hero__cta {
+  min-height: 46px;
+  padding: 0 24px 0 28px;
+  border-color: #f6b4ffcc;
+  background: linear-gradient(90deg, #4a1fd6, #b21fd6 55%, #f02fd0);
+  box-shadow: 0 0 20px #e31adf8c;
+  font-size: 17px;
+}
+
+.elite {
+  padding: 4px 0 24px;
+}
+
+.elite h2 {
+  position: relative;
+  margin: 0 16px;
+  padding-bottom: 10px;
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.elite h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--velvet-heading-gradient);
+}
+
+/* Horizontal snap carousel: the centred card is flanked by its neighbours. */
+.elite__track {
+  display: flex;
+  gap: 14px;
+  margin: 16px 0 0;
+  padding: 4px 17cqw;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.elite__track::-webkit-scrollbar {
+  display: none;
+}
+
+.elite__card {
+  width: 66cqw;
+  flex: none;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid #e879f9aa;
+  border-radius: 20px;
+  box-shadow: 0 0 16px #b13cf559;
+  scroll-snap-align: center;
+}
+
+.elite__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Status / placeholder screens (not in the PDF) ---------- */
+.status-page {
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-block: 40px;
+  text-align: center;
+}
+
+.status-page__logo {
+  width: min(70cqw, 300px);
+  height: auto;
+}
+
+.status-page h1 {
+  margin: 8px 0 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.status-page__text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--velvet-muted);
+}
