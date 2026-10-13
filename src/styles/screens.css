@@ -678,3 +678,22 @@
   margin: 0;
   color: var(--velvet-muted);
 }
+
+/* ---------- Desktop-only elements (shown by desktop.css) ---------- */
+.landing__nav,
+.landing__login,
+.auth__visual,
+.bottom-nav__brand {
+  display: none;
+}
+
+.landing__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Only a layout box on desktop; on phones its children lay out in .auth. */
+.auth__panel {
+  display: contents;
+}

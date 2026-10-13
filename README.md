@@ -18,8 +18,8 @@ npm run preview    # serve dist/ locally to check the production build
 
 ## How the flow maps to the PDF
 
-The mockup is a phone view (Galaxy S25 Ultra) and no desktop layout was supplied, so the app
-renders as one phone-width column, centred on larger screens.
+The mockup is a phone view (Galaxy S25 Ultra). Phones and tablets get that layout; from 1024px
+wide the same screens are laid out full-width (see "Desktop layout" below).
 
 | PDF page | Screen | Route | Component |
 | --- | --- | --- | --- |
@@ -70,8 +70,23 @@ src/
                           AuthLayout, PublicMenu, AccountDrawer, BottomNav, HumanCheck,
                           BrandLogo, Icon, Picture, useOverlay
   pages/                  one file per screen (see table above) + PlaceholderPage
-  styles/                 tokens.css, base.css, components.css, screens.css
+  styles/                 tokens.css, base.css, components.css, screens.css (mockup layout),
+                          desktop.css (full-width layout from 1024px)
 ```
+
+## Desktop layout
+
+The PDF has no desktop design, so `src/styles/desktop.css` is our own arrangement of the same
+screens, controls and assets. It applies from 1024px wide and does not change the flow.
+
+| Screen | Desktop layout |
+| --- | --- |
+| Landing | Copy and buttons on the left, photo on the right. From 1280px the menu links sit in the header next to a "Login" button; below that the "Menu" button opens the overlay. |
+| Sign up / Sign in | Photo and headline on the left, the form on the right. |
+| Check your email | Photo on the left, the dialog as a card on the right. |
+| Verification e-mail | Centred reading column. |
+| Home | The tab bar becomes a top bar with the logo; hero copy left, photo right; the three Elite Creators cards sit side by side. |
+| Account drawer | 400px panel on the right over a dimmed page. |
 
 ## Plugging in the real API
 
@@ -135,3 +150,4 @@ The PDF leaves these open; each is also marked with an `ASSUMPTION` comment in t
 - **Photos and logos** come from the supplied asset pack, which replaces the people in the
   mockup screenshots with newly generated artwork and uses the current official Google icon.
 - A one-line "Your email is verified" notice on the sign-in screen is not in the PDF.
+- **Desktop layout** is not in the PDF; see "Desktop layout" above.

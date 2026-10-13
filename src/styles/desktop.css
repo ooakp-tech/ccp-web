@@ -1,0 +1,408 @@
+/* ---------- Desktop layout (1024px and up) ----------
+   ASSUMPTION: the PDF only shows the phone view, so this layout is ours. It
+   re-arranges the same screens, controls and assets across the full window;
+   nothing here changes the flow. Below 1024px the mockup layout applies. */
+@media (min-width: 1024px) {
+  .app-shell {
+    max-width: none;
+    box-shadow: none;
+    --page-gutter: clamp(32px, 4vw, 80px);
+  }
+
+  /* ----- Landing: copy on the left, photo on the right ----- */
+  .landing {
+    justify-content: flex-start;
+  }
+
+  .landing__bg {
+    left: 42%;
+  }
+
+  .landing__bg::after {
+    background:
+      linear-gradient(to right, var(--velvet-bg) 0%, #0d0b1799 16%, transparent 42%),
+      linear-gradient(to bottom, #0d0b1799 0%, transparent 18%, transparent 68%, var(--velvet-bg) 100%);
+  }
+
+  .landing__header {
+    gap: 24px;
+    padding: 20px var(--page-gutter) 0;
+  }
+
+  .landing__wordmark {
+    height: 26px;
+  }
+
+  .landing__login {
+    display: inline-flex;
+  }
+
+  .landing__nav a {
+    color: #f1eaf8;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .landing__nav a:hover {
+    color: var(--velvet-link);
+  }
+
+  .landing__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    width: min(54%, 720px);
+    padding: 32px 0 72px var(--page-gutter);
+  }
+
+  .landing__title {
+    font-size: clamp(46px, 4.6cqw, 76px);
+  }
+
+  .landing__copy {
+    max-width: 30em;
+    margin: 20px 0 32px;
+    font-size: clamp(18px, 1.5cqw, 22px);
+    line-height: 1.45;
+  }
+
+  .landing__actions {
+    gap: 14px;
+  }
+
+  .landing__actions .btn {
+    flex: none;
+    min-height: 56px;
+    padding: 0 30px;
+    font-size: 18px;
+  }
+
+  /* ----- Public menu overlay (used while the inline links do not fit) ----- */
+  .public-menu {
+    padding: 20px var(--page-gutter) 28px;
+  }
+
+  .public-menu__footer {
+    gap: 12px;
+  }
+
+  .public-menu__footer .btn {
+    flex: none;
+    padding: 0 28px;
+    font-size: 16px;
+  }
+
+  /* ----- Sign up / Sign in: photo left, form right ----- */
+  .auth--split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .auth__visual {
+    position: relative;
+    display: block;
+    overflow: hidden;
+  }
+
+  .auth__visual img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+
+  .auth__visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to left, #0d0b17 0%, transparent 22%),
+      linear-gradient(to bottom, transparent 55%, #0d0b17e6 92%);
+  }
+
+  .auth__tagline {
+    position: absolute;
+    z-index: 1;
+    bottom: 48px;
+    left: var(--page-gutter);
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(32px, 3cqw, 48px);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .auth__tagline span {
+    display: block;
+  }
+
+  .auth__tagline-accent {
+    width: fit-content;
+    background: linear-gradient(90deg, #f6bcff, #e83df0 55%, #ff9af6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .auth__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 40px;
+    overflow-y: auto;
+  }
+
+  .auth__panel > * {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .auth__header {
+    padding-top: 24px;
+  }
+
+  .auth__logo {
+    width: 210px;
+  }
+
+  .auth__body {
+    margin-block: auto;
+    padding-block: 20px;
+  }
+
+  .auth__footer {
+    margin-top: 0;
+    font-size: 13px;
+  }
+
+  /* ----- Check your email: photo left, dialog as a card on the right ----- */
+  .check-email {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    overflow: hidden;
+    background: var(--velvet-auth-background);
+  }
+
+  .check-email__photo {
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+
+  .check-email__photo img:not(.app-mark) {
+    object-position: 46% 30%;
+  }
+
+  .check-email__dialog {
+    align-self: center;
+    justify-self: center;
+    width: min(100% - 64px, 480px);
+    max-height: calc(100% - 48px);
+    margin: 0;
+    padding: 28px 32px 32px;
+    overflow-y: auto;
+    border-bottom: 1px solid #c44cf0aa;
+    border-radius: 22px;
+    box-shadow: 0 0 40px #b13cf540;
+  }
+
+  .app-mark {
+    top: 24px;
+    left: var(--page-gutter);
+  }
+
+  .demo-pill {
+    top: 32px;
+    right: 24px;
+  }
+
+  /* ----- Simulated mailbox: centred reading column ----- */
+  .mail__bar {
+    padding-inline: max(24px, calc((100% - 720px) / 2));
+  }
+
+  .mail__head,
+  .mail__body {
+    padding-inline: max(24px, calc((100% - 720px) / 2));
+  }
+
+  .mail-card__content {
+    padding: 40px 48px 16px;
+  }
+
+  .mail-card__footer {
+    padding-inline: 48px;
+  }
+
+  /* ----- Home: the tab bar becomes a top bar ----- */
+  .bottom-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    order: -1;
+    padding: 12px var(--page-gutter);
+    border-top: 0;
+    border-bottom: 1px solid #ffffff1a;
+    background: #0d0b17;
+    color: #c9c0d6;
+  }
+
+  .bottom-nav__brand {
+    display: block;
+    margin-right: auto;
+  }
+
+  .bottom-nav__brand img {
+    display: block;
+    width: auto;
+    height: 40px;
+  }
+
+  .bottom-nav__item {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 15px;
+  }
+
+  .bottom-nav__item:not(.is-active):hover {
+    background: #ffffff14;
+    color: #fff;
+  }
+
+  .bottom-nav__item.is-active {
+    background: #e31adf26;
+    color: #f6a5ff;
+  }
+
+  .bottom-nav__dot {
+    display: none;
+  }
+
+  .bottom-nav__badge {
+    border-color: #0d0b17;
+  }
+
+  /* The logo is in the top bar on desktop. */
+  .home-hero > .app-mark {
+    display: none;
+  }
+
+  .home-hero {
+    display: flex;
+    align-items: center;
+    min-height: min(68cqh, 620px);
+    padding: 0 max(var(--page-gutter), calc((100% - 1200px) / 2));
+    text-align: left;
+  }
+
+  /* A fixed-width column on the right keeps the portrait crop sensible on any
+     window width; the edges fade into the page background. */
+  .home-hero__photo {
+    inset: 0 max(var(--page-gutter), calc((100% - 1200px) / 2)) 0 auto;
+    width: min(46cqw, 600px);
+  }
+
+  .home-hero__photo::after {
+    background:
+      linear-gradient(to right, var(--velvet-bg) 0%, transparent 30%, transparent 72%, var(--velvet-bg) 100%),
+      linear-gradient(to bottom, var(--velvet-bg) 0%, transparent 14%, transparent 55%, var(--velvet-bg) 96%);
+  }
+
+  .home-hero__content {
+    max-width: min(50%, 560px);
+    padding: 56px 0;
+  }
+
+  .home-hero h1 {
+    font-size: clamp(34px, 3.4cqw, 52px);
+    white-space: normal;
+  }
+
+  .home-hero__accent {
+    display: block;
+    width: fit-content;
+  }
+
+  .home-hero p {
+    max-width: 20em;
+    margin: 14px 0 28px;
+    font-size: clamp(19px, 1.7cqw, 24px);
+    line-height: 1.35;
+  }
+
+  .home-hero__cta {
+    min-height: 52px;
+    font-size: 18px;
+  }
+
+  /* Elite Creators: all three cards side by side instead of a carousel. */
+  .elite {
+    width: min(100%, 1200px + 2 * var(--page-gutter));
+    margin: 0 auto;
+    padding: 16px var(--page-gutter) 64px;
+  }
+
+  .elite h2 {
+    margin: 0;
+    font-size: 28px;
+  }
+
+  .elite__track {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .elite__card {
+    width: auto;
+  }
+
+  /* ----- Account drawer: fixed-width panel on the right ----- */
+  .drawer__scrim {
+    width: auto;
+    flex: 1;
+    background: #0d0b1780;
+  }
+
+  .drawer__tab {
+    display: none;
+  }
+
+  .drawer__panel {
+    width: 400px;
+    flex: none;
+    padding: 32px 32px 28px;
+  }
+
+  @keyframes drawer-in {
+    from {
+      opacity: 0.4;
+      transform: translateX(60px);
+    }
+  }
+}
+
+/* Wide enough for the menu links to sit in the landing header. */
+@media (min-width: 1280px) {
+  .landing__nav {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: clamp(18px, 1.8vw, 34px);
+  }
+
+  .landing__menu-button {
+    display: none;
+  }
+}

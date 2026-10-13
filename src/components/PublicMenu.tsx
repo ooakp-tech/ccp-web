@@ -4,7 +4,7 @@ import { BrandLogo } from './BrandLogo'
 import { Button } from './Button'
 import { useOverlay } from './useOverlay'
 
-const MENU_LINKS = [
+export const MENU_LINKS = [
   PLACEHOLDER_ROUTES.about,
   PLACEHOLDER_ROUTES.highlights,
   PLACEHOLDER_ROUTES.photographers,

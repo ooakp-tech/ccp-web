@@ -34,7 +34,8 @@ input {
   outline-offset: 2px;
 }
 
-/* The mockup is mobile-only: one phone-width column, centred on desktop.
+/* The mockup is mobile-only: one phone-width column, centred on tablets
+   (desktop.css makes it full-width from 1024px).
    It is a size container, so screens can scale type with cqw/cqh units
    relative to the column instead of the browser window. */
 .app-shell {

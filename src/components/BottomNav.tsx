@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { PLACEHOLDER_ROUTES } from '../routes/paths'
+import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
+import { BrandLogo } from './BrandLogo'
 import { Icon } from './Icon'
 
 interface BottomNavProps {
@@ -7,10 +8,16 @@ interface BottomNavProps {
   onOpenMenu: () => void
 }
 
-/** Signed-in tab bar on the home screen (PDF p.6 centre). "Menu" opens the account drawer. */
+/**
+ * Signed-in tab bar on the home screen (PDF p.6 centre). "Menu" opens the account drawer.
+ * On desktop the same items are laid out as a top bar with the logo (see desktop.css).
+ */
 export function BottomNav({ initials, onOpenMenu }: BottomNavProps) {
   return (
     <nav className="bottom-nav" aria-label="Primary">
+      <Link className="bottom-nav__brand" to={PATHS.home}>
+        <BrandLogo variant="horizontal" />
+      </Link>
       <span className="bottom-nav__item is-active" aria-current="page">
         {/* Filled variant of the pack's home icon; the mockup fills the active tab. */}
         <svg className="bottom-nav__home" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">

@@ -1,14 +1,18 @@
 import { useCallback, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { BrandLogo } from '../components/BrandLogo'
 import { Button } from '../components/Button'
 import { Icon } from '../components/Icon'
 import { Picture } from '../components/Picture'
-import { PublicMenu } from '../components/PublicMenu'
+import { MENU_LINKS, PublicMenu } from '../components/PublicMenu'
 import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
 
 /**
  * PDF p.3 (left): landing screen - the user picks the type of sign-up.
  * The "Menu" button opens the public navigation overlay (PDF p.3 right).
+ *
+ * ASSUMPTION (desktop, not in the PDF): wide screens show the menu links and
+ * "Login" inline in the header; the "Menu" button stays until they fit.
  */
 export function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -26,16 +30,28 @@ export function LandingPage() {
             <BrandLogo variant="app-mark" className="landing__mark" alt="" />
             <BrandLogo variant="wordmark" className="landing__wordmark" />
           </span>
-          <button
-            type="button"
-            className="chip-button"
-            onClick={() => setMenuOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={menuOpen}
-          >
-            Menu
-            <Icon name="menu" size={18} />
-          </button>
+          <nav className="landing__nav" aria-label="Main">
+            {MENU_LINKS.map((link) => (
+              <Link key={link.path} to={link.path}>
+                {link.title}
+              </Link>
+            ))}
+          </nav>
+          <div className="landing__header-actions">
+            <Button to={PATHS.signIn} variant="dark" size="sm" className="landing__login">
+              Login
+            </Button>
+            <button
+              type="button"
+              className="chip-button landing__menu-button"
+              onClick={() => setMenuOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={menuOpen}
+            >
+              Menu
+              <Icon name="menu" size={18} />
+            </button>
+          </div>
         </header>
 
         <main className="landing__content">

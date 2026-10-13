@@ -27,6 +27,6 @@
   --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Montserrat Variable', 'Montserrat', var(--font-ui);
 
-  /* Width of the phone column the mobile mockup is rendered in on large screens. */
+  /* Width of the phone column the mobile mockup is rendered in below the desktop breakpoint. */
   --shell-max-width: 480px;
 }

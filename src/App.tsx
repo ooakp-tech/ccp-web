@@ -3,9 +3,10 @@ import { SessionProvider } from './context/SessionContext'
 import { AppRoutes } from './routes/AppRoutes'
 
 /**
- * The mockup is a mobile view (Galaxy S25 Ultra) and no desktop layout was
- * supplied, so the app renders as a phone-width column centred on larger
- * screens instead of inventing a desktop design. See .app-shell in base.css.
+ * The mockup is a mobile view (Galaxy S25 Ultra). Phones and tablets get that
+ * layout (a phone-width column, see .app-shell in base.css); from 1024px up
+ * the same screens are re-laid out full-width by styles/desktop.css.
+ * ASSUMPTION: no desktop design was supplied, so the desktop layout is ours.
  */
 export default function App() {
   return (
