@@ -10,28 +10,67 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: npm
 
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
     - name: Build React app
       run: npm run build
 
+    # --- Temporarily allow this runner's IP through the EC2 security group ---
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Get runner public IP
+      id: ip
+      run: echo "ip=$(curl -s https://checkip.amazonaws.com)" >> "$GITHUB_OUTPUT"
+
+    - name: Allow runner IP on port 22
+      run: |
+        aws ec2 authorize-security-group-ingress \
+          --group-id ${{ secrets.EC2_SG_ID }} \
+          --protocol tcp --port 22 \
+          --cidr ${{ steps.ip.outputs.ip }}/32
+
+    # --- Deploy ---
     - name: Copy build folder to Windows EC2
-      uses: appleboy/scp-action@v0.1.4
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        timeout: 60s
         source: "dist/*"
         target: ${{ secrets.EC2_TARGET_DIR }}
+        strip_components: 1   # put contents of dist/ directly in target, not target/dist
 
     - name: Restart IIS
-      uses: appleboy/ssh-action@v0.1.7
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          powershell.exe iisreset
+        port: 22
+        timeout: 60s
+        script: iisreset
+
+    # --- Always close the port again, even if the deploy failed ---
+    - name: Revoke runner IP
+      if: always()
+      run: |
+        aws ec2 revoke-security-group-ingress \
+          --group-id ${{ secrets.EC2_SG_ID }} \
+          --protocol tcp --port 22 \
+          --cidr ${{ steps.ip.outputs.ip }}/32
