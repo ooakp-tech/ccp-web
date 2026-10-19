@@ -18,6 +18,13 @@ export const PATHS = {
 
   // Fan Delete Account PDF (10.4.26). The mockup's address bar shows
   // velvetfx.com/settings and a truncated velvetfx.com/settings/... for the rest.
+  // Creator sign-up PDF (10.9.26, phase 1). The mockup shows velvetfx.com/signup?t... for the
+  // sign-up form and velvetfx.com/myprofile... for the onboarding screens.
+  creatorSignUp: '/signup?type=creator', // Creator PDF p.4 - same screen as fan sign-up, creator rules
+  creatorVerify: '/creator/verify', // target of "Confirm your account" in the e-mail (PDF p.5)
+  creatorOnboarding: '/myprofile', // Creator PDF p.6-7 - 6-slide carousel
+  creatorReferral: '/myprofile/referral', // Creator PDF p.8 right - Referrals, step 1 of 9
+
   settings: '/settings', // Delete PDF p.4 right - Settings
   accountSettings: '/settings/account', // Delete PDF p.5 left - Account
   deleteAccount: '/settings/account/delete', // Delete PDF p.5 centre/right - Delete my account + reason pop-up
@@ -51,6 +58,7 @@ export const PLACEHOLDER_ROUTES = {
   terms: { path: '/terms', title: 'Terms and Conditions' },
   privacy: { path: '/privacy', title: 'Privacy Policy' },
   policies: { path: '/policies', title: 'All our policies' },
+  acceptableUse: { path: '/acceptable-use', title: 'Acceptable Use Policy' },
   // Bottom navigation (PDF p.6 centre)
   notifications: { path: '/notifications', title: 'Notifications', requiresAuth: true },
   discover: { path: '/discover', title: 'Discover', requiresAuth: true },
@@ -69,6 +77,10 @@ export const PLACEHOLDER_ROUTES = {
   privacySettings: { path: '/settings/privacy', title: 'Privacy and safety', requiresAuth: true },
   helpSettings: { path: '/settings/help', title: 'Help, terms and support', requiresAuth: true },
   accountInfo: { path: '/settings/account/info', title: 'Account Info', requiresAuth: true },
+  // Creator onboarding after the referral step (steps 2-9): phase 2 of the Creator PDF, not designed yet.
+  creatorSetup: { path: '/myprofile/setup', title: 'Creator setup', requiresAuth: true },
+  // "Explore Creators" on the creator home (Creator PDF p.8 centre).
+  exploreCreators: { path: '/explore', title: 'Explore Creators', requiresAuth: true },
   passwordSecurity: {
     path: '/settings/account/security',
     title: 'Password and security settings',

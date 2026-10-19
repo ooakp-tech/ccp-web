@@ -5,7 +5,7 @@ import { Button } from '../components/Button'
 import { useSession } from '../context/SessionContext'
 import { PATHS } from '../routes/paths'
 import { completeExternalSignIn } from '../services/api'
-import { clearPendingOAuth, pendingReturnTo, providerName, readOAuthCallback } from '../services/oauth'
+import { clearPendingOAuth, pendingReturnTo, pendingRole, providerName, readOAuthCallback } from '../services/oauth'
 
 /**
  * Not in the PDF: where Google / X send the user back after their consent
@@ -19,17 +19,19 @@ export function OAuthCallbackPage() {
   const { signInAs, marketingOptIn } = useSession()
   const [error, setError] = useState<string>()
   const [returnTo] = useState(pendingReturnTo)
+  const [role] = useState(pendingRole)
 
   useEffect(() => {
     let cancelled = false
     Promise.resolve()
-      .then(() => completeExternalSignIn(readOAuthCallback(provider, location), marketingOptIn))
+      .then(() => completeExternalSignIn(readOAuthCallback(provider, location), marketingOptIn, role))
       .then((user) => {
         if (cancelled) return
         clearPendingOAuth()
         signInAs(user)
-        // replace: drops the code / token from the URL and from history.
-        navigate(PATHS.home, { replace: true })
+        // replace: drops the code / token from the URL and from history. A creator from the
+        // creator sign-up continues with the onboarding carousel (Creator PDF p.6).
+        navigate(user.role === 'creator' && role === 'creator' ? PATHS.creatorOnboarding : PATHS.home, { replace: true })
       })
       .catch((reason: unknown) => {
         if (cancelled) return
@@ -51,7 +53,7 @@ export function OAuthCallbackPage() {
             {error}
           </p>
           <Button to={returnTo} variant="outline">
-            Back to {returnTo === PATHS.signUp ? 'sign up' : 'sign in'}
+            Back to {returnTo.startsWith(PATHS.signUp) ? 'sign up' : 'sign in'}
           </Button>
         </>
       ) : (

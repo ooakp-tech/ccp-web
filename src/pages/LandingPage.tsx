@@ -4,7 +4,7 @@ import { BrandLogo } from '../components/BrandLogo'
 import { Button } from '../components/Button'
 import { Icon } from '../components/Icon'
 import { MENU_LINKS, PublicMenu } from '../components/PublicMenu'
-import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
+import { PATHS } from '../routes/paths'
 
 /**
  * PDF p.3 (left): landing screen - the user picks the type of sign-up.
@@ -59,7 +59,7 @@ export function LandingPage() {
           </p>
           <div className="landing__actions">
             <Button
-              to={PLACEHOLDER_ROUTES.joinAsCreator.path}
+              to={PATHS.creatorSignUp}
               variant="brand"
               shape="rounded"
               className="landing__cta-creator"

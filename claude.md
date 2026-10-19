@@ -86,6 +86,25 @@ Everything above is the original brief. This section records what has been built
 - Git: the desktop-layout changes are uncommitted on `main` (`src/styles/desktop.css` is new). Commit only when the user asks.
 - The source PDFs and the asset pack folder (`velvet-fx-frontend-assets-V2`) are no longer in the repo folder; the assets the app uses are already copied to `public/assets/`.
 
+## Environments, servers and where the secrets are
+
+Secrets (passwords, keys) are never written here or anywhere in git: this file is committed to
+GitHub. Each entry says where the secret lives instead.
+
+| What | Value / location |
+| --- | --- |
+| Live site | https://velvet.love (React build on IIS, Windows EC2, us-west-2) |
+| Frontend repo | `C:\ccp-web`, github.com/ooakp-tech/ccp-web, branch `main`. Push to `main` deploys (`.github/workflows/deploy.yml`: build, scp `dist/` to EC2, `iisreset`). |
+| Frontend public config | `.env.production` (committed): `VITE_API_BASE_URL=/api/api`, `VITE_GOOGLE_CLIENT_ID`. Never set `VITE_*` under `env:` in the workflow (an empty Actions variable overrides the file). |
+| API | https://velvet.love/api (IIS application under the same site); Swagger `https://velvet.love/api/index.html`; controllers under `api/...`, so calls go to `/api/api/<Controller>/...` |
+| API repo | `C:\ccp-api-temp`, github.com/ooakp-tech/ccp-api-temp, branch `ba/init` (.NET 5, `ModelFeed.sln`). Published by the user from Visual Studio (folder profile) to the `/api` IIS app. `.github/workflows/staging.yml` is the old Azure pipeline, not used for velvet.love. |
+| API server-only settings | `C:\ccp-api-temp\src\ModelFeed.Api\appsettings.Production.json` (git-ignored, included in publish; the server runs as Production). Holds `ConnectionStrings`, `EmailSettings`, `GoogleSettings`, `VelvetSettings` and overrides `appsettings.json`, whose committed values are old Azure/CharmluxVIP ones. |
+| Database | Amazon RDS SQL Server `charmluxviptech-db-dev.c382aw2a2g13.us-west-2.rds.amazonaws.com`, port 1433, database `charmluxviptech`. Login: in `appsettings.Production.json` (from the user). Needs `Encrypt=True;TrustServerCertificate=True` (RDS CA is not trusted by Windows). The RDS security group allows the EC2 server (fixed 2026-10-19). Open from the user's PC too, so read-only checks can be run from here with `System.Data.SqlClient` in PowerShell. Never write to it without asking. |
+| SMTP (e-mail) | Amazon SES Mail Manager SMTP ingress endpoint `h2pfaxym6fks.fips.jshu.mail-manager-smtp.amazonaws.com` (us-west-1), port 587, STARTTLS, AUTH LOGIN/PLAIN. Credentials: `C:\velvet project\smtp-credentials.csv` (columns: endpoint, port, username, username b64, password, password b64), copied into `EmailSettings` in `appsettings.Production.json`. Login verified 2026-10-19 without sending. Delivery needs the Mail Manager rule set to relay to the internet and the sender to be allowed; `EmailFrom` is `no-reply@velvet.love` (not yet confirmed by the user). `EmailService` swallows send errors but logs them to the API's `log` folder. |
+| Google sign-in | OAuth client ID `605212062971-5pm4pahema90v3if4buk76v006h77939.apps.googleusercontent.com` (public; in `.env.production`, `.env.local`, API `GoogleSettings`). The client secret was given in chat once and is deliberately stored nowhere; this flow does not need it. Google Cloud Console must list origin `https://velvet.love` and redirect URI `https://velvet.love/auth/callback/google` (plus `http://localhost:5173` ones for dev). |
+| Design PDFs | `C:\velvet project\`: Fan sign-up (10.1.26), Fan delete account (10.4.26), Creator sign-up phase 1 (10.9.26), Fanvue fan sign-up (theme reference). |
+| Browser checks | Throwaway Puppeteer scripts in the session scratchpad, using `puppeteer-core` from `C:\Users\BibhuRocks\AppData\Local\Temp\claude\C--ccp-web\5830f29b-d2ba-4579-b1ac-993ea276ac8f\scratchpad\pdftool\` and Chrome at `C:\Program Files\Google\Chrome\Application\chrome.exe`. Serve `dist/` with `npx vite preview --port 4199` and answer `/api/api/*` with request interception, so no real accounts are created. |
+
 ## Stack and commands
 
 Vite 6, React 18, TypeScript, react-router-dom 6, font bundled with `@fontsource-variable/inter` (no CDN). Node 20+.
@@ -137,7 +156,19 @@ Delete Account PDF:
 | 5 right | Reason pop-up | same route | `components/DeleteReasonSheet` |
 | 6 | Deleted, back on sign-in | `/signin` | `pages/SignInPage` |
 
+Creator sign-up PDF (10.9.26, phase 1):
+
+| PDF page | Screen | Route | Component |
+| --- | --- | --- | --- |
+| 4 | Creator sign-up | `/signup?type=creator` | `pages/SignUpPage` (role from `?type=`) |
+| 5 left | Verify your email | `/home` while a creator is pending | `pages/CreatorVerifyEmailPage` |
+| 5 right | E-mail link target | `/creator/verify?token=` | `pages/CreatorVerifyPage` |
+| 6-7 | Onboarding carousel | `/myprofile` | `pages/CreatorOnboardingPage` |
+| 8 centre | Creator home | `/home` when `user.role === 'creator'` | `pages/CreatorHomePage` |
+| 8 right | Referrals step 1/9 | `/myprofile/referral` | `pages/CreatorReferralPage` |
+
 Signed-in screens share `components/SignedInLayout` (tab bar + drawer); routes needing a user use `RequireUser` in `AppRoutes.tsx`.
+`User.role` (`fan` | `creator`, from TokenResponse.userTypeId: 2 = Presenter) and `session.pendingRole` pick the fan or creator screens; `RequireCreator` guards the onboarding routes.
 
 ## Conventions to keep
 
@@ -153,10 +184,11 @@ Signed-in screens share `components/SignedInLayout` (tab bar + drawer); routes n
 - Destinations not in the PDF (menu links, policies, Forgot password, Join as a Creator, tabs, drawer entries) open a generic `PlaceholderPage`.
 - Validation: well-formed e-mail; new password needs 8+ characters with a letter and a number. Error messages are ours.
 - "Send again" needs the human check first; "Change email" returns to sign-up with the address prefilled; the dialog's × returns to landing.
-- Google/X sign-in (added 2026-10-13): real redirect flows in `src/services/oauth.ts` (Google OIDC id_token, X OAuth 2.0 + PKCE) back to `/auth/callback/:provider` (`pages/OAuthCallbackPage`), enabled by `VITE_GOOGLE_CLIENT_ID` / `VITE_X_CLIENT_ID` in `.env.local` (see `.env.example`). Without an ID the old simulation is used. A real Google client ID is set in `.env.local` (2026-10-19); Google answered `redirect_uri_mismatch` until the user registers `http://localhost:5173/auth/callback/google` (and the https IIS URL) in Google Cloud Console. The client secret was deliberately not put in the frontend; it belongs to the backend. Production is http://velvet.love (GitHub Actions `deploy.yml` -> IIS on EC2, no HTTPS yet as of 2026-10-19); the workflow reads `VITE_GOOGLE_CLIENT_ID` / `VITE_X_CLIENT_ID` from repo Actions variables, because `.env.local` is not in git. Without them the live site falls back to the simulation. X has no client ID yet; X needs the backend to exchange its code, so the mock signs X users in as a demo fan.
+- Google/X sign-in (added 2026-10-13): real redirect flows in `src/services/oauth.ts` (Google OIDC id_token, X OAuth 2.0 + PKCE) back to `/auth/callback/:provider` (`pages/OAuthCallbackPage`), enabled by `VITE_GOOGLE_CLIENT_ID` / `VITE_X_CLIENT_ID` in `.env.local` (see `.env.example`). Without an ID the old simulation is used. A real Google client ID is set in `.env.local` (2026-10-19); Google answered `redirect_uri_mismatch` until the user registers `http://localhost:5173/auth/callback/google` (and the https IIS URL) in Google Cloud Console. The client secret was deliberately not put in the frontend; it belongs to the backend. Production is https://velvet.love (GitHub Actions `deploy.yml` -> IIS on EC2). The Google client ID (public) is committed in `.env.production`; `deploy.yml` must not set VITE_* under `env:`, because a missing Actions variable arrives as an empty string and overrides the .env file (that is why the live button once said Google was unavailable). X has no client ID yet; X needs the backend to exchange its code, so the mock signs X users in as a demo fan.
 - The Cloudflare box is a stand-in for the real Turnstile widget.
 - Display name and @handle are derived from the e-mail by the mock.
 - Inter is the only font (headings and UI).
+- Creator flow: no photos (placeholder tiles); carousel auto-advances every 5 s until the creator interacts; Referrals Proceed/Skip go to the `/myprofile/setup` placeholder (phase 2), the code is kept in sessionStorage (no API field); the signed-in fan's "Join as a Creator" stays a placeholder.
 - Delete flow: rows crossed out in the PDF ("not set up yet") open the placeholder page; Log out works; NSFW/Dark mode toggles do nothing yet; the crossed-out tab bar is kept; Settings x -> home, < goes up one level; the reason is optional; sign-in shows "Your account has been deleted."
 - Desktop: landing shows the menu links and a "Login" button inline from 1280px; landing, sign-up/sign-in and check-email are single centred columns on the white page; home's tab bar becomes a top bar; windows under 1024px keep the centred phone column.
 
@@ -164,7 +196,7 @@ Signed-in screens share `components/SignedInLayout` (tab bar + drawer); routes n
 
 - Review the desktop layout with the user and adjust.
 - Test the build on a real IIS site with the URL Rewrite module.
-- Replace placeholder pages as their designs arrive (Creator sign-up has its own PDF, not yet supplied).
+- Replace placeholder pages as their designs arrive (Creator onboarding phase 2: steps 2-9 after Referrals).
 - Re-publish the API with the 2026-10-19 changes, then remove the register-then-login fallback in `registerUser`.
 - Add API support for e-mail verification, X sign-in, Stay Updated and the delete reason.
 - Add an in-repo end-to-end test if the user wants one.

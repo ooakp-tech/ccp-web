@@ -62,6 +62,38 @@ Registration data travels between steps through `context/SessionContext` (pendin
 Stay Updated choice, signed-in user), mirrored to `sessionStorage` so a page refresh keeps the user
 in the flow. Passwords are never stored there.
 
+### Creator sign-up flow (phase 1)
+
+`VELVET FX - CREATOR - Sign up Process - with email and password - 10.9.26 - PHASE 1.pdf`
+(pages 1, 2 and 9 are title slides). A creator is a *Presenter* in the API.
+
+| PDF page | Screen | Route | Component |
+| --- | --- | --- | --- |
+| 3 | Landing / public menu → **Join as a Creator** | `/` | `pages/LandingPage`, `components/PublicMenu` |
+| 4 | Creator sign-up – Google, X, e-mail + password (9–30 chars, number, upper and lower case) | `/signup?type=creator` | `pages/SignUpPage` |
+| 5 left | **Verify your email** pop-up – Resend link, Use a different email, × | `/home` (pending creator) | `pages/CreatorVerifyEmailPage` |
+| 5 right | E-mail "Confirm your VELVET FX account" → **Confirm your account** | `/creator/verify?token=…` | `pages/CreatorVerifyPage` (+ API template) |
+| 6–7 | Onboarding carousel, 6 slides (arrows, dots, swipe, auto-advance) – Start Monetizing, Close | `/myprofile` | `pages/CreatorOnboardingPage` |
+| 8 centre | Close → creator home "Build Your Feed" – Explore Creators | `/home` (creator) | `pages/CreatorHomePage` |
+| 8 right | Start Monetizing → **Referrals**, step 1 of 9 – Proceed, Skip this step | `/myprofile/referral` | `pages/CreatorReferralPage` |
+
+End to end: **Landing → Join as a Creator → e-mail + password → Sign Up → Verify your email →
+(e-mail) Confirm your account → onboarding carousel → Start Monetizing → Referrals → (phase 2)**,
+or **Close → creator home**. Google on the creator sign-up skips the e-mail and goes to the carousel.
+Signing in later as a creator lands on the creator home.
+
+Assumptions (also `ASSUMPTION` comments in the code):
+
+- Photos stay off: every "PHOTO HERE" box is a soft placeholder tile (`components/MediaPlaceholder`).
+- The carousel advances every 5 s, stops on the last slide and for good once the creator uses an
+  arrow, a dot or a swipe; it pauses on hover/focus and is off with reduced motion.
+- Proceed and Skip on Referrals both continue to `/myprofile/setup`, a placeholder for phase 2.
+  The API has no referral field yet, so a code is kept in `sessionStorage`.
+- "Use a different email" returns to the creator sign-up with the address prefilled; × leaves the
+  flow (back to landing). Search and Explore Creators open placeholders.
+- The signed-in fan's "Join as a Creator" (home, drawer, Settings) still opens a placeholder: a fan
+  becoming a creator is not designed yet.
+
 ## Project structure
 
 ```
@@ -127,6 +159,10 @@ API's `{ success, data, errors }` envelope into `ApiError` messages):
 | `requestPasswordReset` | Forgot password? (`/forgot-password`) | `POST /Auth/forgetpassword` `{ email, url }` |
 | `resetPassword` | link in the reset e-mail (`/reset-password/:hash`) | `POST /Auth/changepassword` `{ hash, password }` |
 | `deleteAccount` | DELETE MY ACCOUNT | `PATCH /Visitor/deactivate` with `Authorization: Bearer <token>` |
+| `registerCreator` | creator Sign Up | `POST /Creator/signup` `{ email, password, marketingOptIn }` (added 2026-10-19) |
+| `resendCreatorVerification` | Resend link | `POST /Creator/resend-verification` `{ email }` |
+| `verifyCreatorEmail` | Confirm your account (`/creator/verify`) | `POST /Creator/verify-email` `{ token }` → signs the creator in |
+| `completeExternalSignIn` (creator) | Continue with Google on the creator sign-up | `POST /Creator/google` `{ idToken, nonce }` |
 | `signOut` | Logout | none – the API issues stateless JWTs; the token is dropped client-side |
 
 Configuration: `VITE_API_BASE_URL` in `.env.production` and `.env.development` (both committed,

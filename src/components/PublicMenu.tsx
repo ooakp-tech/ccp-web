@@ -51,7 +51,7 @@ export function PublicMenu({ open, onClose }: PublicMenuProps) {
         <Button to={PATHS.signIn} variant="primary" size="sm">
           Login
         </Button>
-        <Button to={PLACEHOLDER_ROUTES.joinAsCreator.path} variant="brand" size="sm">
+        <Button to={PATHS.creatorSignUp} variant="brand" size="sm">
           Join as a Creator
         </Button>
       </footer>

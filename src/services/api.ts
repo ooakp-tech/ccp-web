@@ -17,6 +17,7 @@
  */
 import { MOCK_LATENCY_MS, USE_MOCK_API } from '../config'
 import type {
+  AccountRole,
   Credentials,
   ExternalAuthResult,
   RegistrationData,
@@ -78,8 +79,17 @@ interface ApiToken {
   authenticated: boolean
   accessToken: string
   expiration: string
+  userTypeId: number
   visitorId?: string | null
   name?: string | null
+}
+
+/** CreatorSessionResponse (POST /Creator/verify-email, /Creator/google) */
+interface ApiCreatorSession {
+  presenterId: string
+  email: string
+  name?: string | null
+  token: ApiToken
 }
 
 /** VisitorResponse (only the fields the UI reads) */
@@ -100,7 +110,7 @@ function delay<T>(value: T, ms = MOCK_LATENCY_MS): Promise<T> {
  * both are derived from the e-mail address ("jane.doe@x.com" -> "Jane Doe",
  * "@jane-doe-966") unless the API or Google supplies a name.
  */
-function toUser(email: string, displayName?: string | null): User {
+function toUser(email: string, displayName?: string | null, role: AccountRole = 'fan'): User {
   const parts = normalizeEmail(email)
     .split('@')[0]
     .split(/[^a-z0-9]+/)
@@ -108,14 +118,19 @@ function toUser(email: string, displayName?: string | null): User {
   const words = parts.length > 0 ? parts : ['fan']
   return {
     email: normalizeEmail(email),
+    role,
     displayName: displayName || words.map((word) => word[0].toUpperCase() + word.slice(1)).join(' '),
     handle: `${words.join('-')}-966`,
     walletBalance: 0,
   }
 }
 
+/** UserTypeId in the API: 1 admin, 2 presenter (creator), 3 visitor (fan). */
+const PRESENTER_USER_TYPE = 2
+
 function fromToken(email: string, token: ApiToken): User {
-  return { ...toUser(email, token.name), accessToken: token.accessToken, visitorId: token.visitorId ?? undefined }
+  const role: AccountRole = token.userTypeId === PRESENTER_USER_TYPE ? 'creator' : 'fan'
+  return { ...toUser(email, token.name, role), accessToken: token.accessToken, visitorId: token.visitorId ?? undefined }
 }
 
 /** Where the reset link in the "Recovery password" e-mail points (the API appends /{hash}). */
@@ -160,6 +175,57 @@ export async function registerUser(data: RegistrationData): Promise<Registration
 }
 
 async function mockRegisterUser(data: RegistrationData): Promise<RegistrationResult> {
+  const { email } = await mockRegister(data, 'fan')
+  return { kind: 'verify', email }
+}
+
+// ---------- Creator sign-up (Creator PDF p.4-6) ----------
+
+/**
+ * Creator "Sign Up". API: POST /Creator/signup creates an unverified creator
+ * and e-mails "Confirm your VELVET FX account"; the next screen is the
+ * "Verify your email" pop-up (PDF p.5).
+ */
+export async function registerCreator(data: RegistrationData): Promise<{ email: string }> {
+  if (USE_MOCK_API) return mockRegister(data, 'creator')
+  try {
+    return await apiRequest<{ email: string }>('/Creator/signup', {
+      method: 'POST',
+      body: { email: data.email.trim(), password: data.password, marketingOptIn: data.marketingOptIn },
+    })
+  } catch (error) {
+    throw toApiError(error, [{ code: 'EMAIL_TAKEN', when: /already exists/i }])
+  }
+}
+
+/** "Resend link" on the Verify your email pop-up. API: POST /Creator/resend-verification. */
+export async function resendCreatorVerification(email: string): Promise<void> {
+  if (USE_MOCK_API) return resendVerificationEmail(email, 'not-needed')
+  try {
+    await apiRequest<{ email: string }>('/Creator/resend-verification', { method: 'POST', body: { email } })
+  } catch (error) {
+    throw toApiError(error, [{ code: 'NOT_FOUND', when: /could not find|already confirmed/i }])
+  }
+}
+
+/**
+ * "Confirm your account" in the e-mail opens /creator/verify?token=...
+ * API: POST /Creator/verify-email activates the creator and signs them in.
+ */
+export async function verifyCreatorEmail(token: string): Promise<User> {
+  if (USE_MOCK_API) {
+    const { email } = await verifyEmail(token)
+    return toUser(email, undefined, 'creator')
+  }
+  try {
+    const session = await apiRequest<ApiCreatorSession>('/Creator/verify-email', { method: 'POST', body: { token } })
+    return fromToken(session.email, session.token)
+  } catch (error) {
+    throw toApiError(error, [{ code: 'INVALID_TOKEN', when: /invalid or has expired/i }])
+  }
+}
+
+async function mockRegister(data: RegistrationData, role: AccountRole): Promise<{ email: string }> {
   const email = normalizeEmail(data.email)
   if (findUser(email)?.verified) {
     await delay(null)
@@ -168,13 +234,14 @@ async function mockRegisterUser(data: RegistrationData): Promise<RegistrationRes
   // Registering again with an unverified address simply restarts verification.
   saveUser({
     email,
+    role,
     passwordChecksum: checksum(data.password),
     verified: false,
     verificationToken: newToken(),
     verificationSentAt: new Date().toISOString(),
     marketingOptIn: data.marketingOptIn,
   })
-  return delay({ kind: 'verify', email })
+  return delay({ email })
 }
 
 // ---------- E-mail verification (mock only: the API has no verification step yet) ----------
@@ -250,7 +317,7 @@ async function mockSignIn(credentials: Credentials): Promise<User> {
     await delay(null)
     throw new ApiError('EMAIL_NOT_VERIFIED', 'Please verify your email before signing in.')
   }
-  return delay(toUser(user.email))
+  return delay(toUser(user.email, undefined, user.role ?? 'fan'))
 }
 
 // ---------- Google / X ----------
@@ -260,14 +327,14 @@ async function mockSignIn(credentials: Credentials): Promise<User> {
  * (see services/oauth.ts). Mock: signs in a demo fan. With the API there is
  * nothing to fall back to, so the button reports that sign-in is unavailable.
  */
-export async function signInWithProvider(provider: SocialProvider): Promise<User> {
+export async function signInWithProvider(provider: SocialProvider, role: AccountRole = 'fan'): Promise<User> {
   if (!USE_MOCK_API) {
     throw new ApiError(
       'NOT_SUPPORTED',
       `Sign-in with ${provider === 'x' ? 'X' : 'Google'} is not available yet. Please use your email and password.`,
     )
   }
-  return delay(toUser(`${provider}.fan@example.com`))
+  return delay(toUser(`${provider}.${role}@example.com`, undefined, role))
 }
 
 /** Reads the claims of a JWT WITHOUT checking its signature - mock and display only. */
@@ -285,27 +352,34 @@ function decodeJwtPayload(jwt: string): Record<string, unknown> {
  * X: the API has no endpoint yet (it would have to exchange the code with
  * POST https://api.x.com/2/oauth2/token server-side).
  */
-export async function completeExternalSignIn(result: ExternalAuthResult, marketingOptIn: boolean): Promise<User> {
+export async function completeExternalSignIn(
+  result: ExternalAuthResult,
+  marketingOptIn: boolean,
+  role: AccountRole = 'fan',
+): Promise<User> {
   void marketingOptIn // TODO: the API has no "Stay Updated" field yet
-  if (USE_MOCK_API) return mockCompleteExternalSignIn(result)
+  if (USE_MOCK_API) return mockCompleteExternalSignIn(result, role)
 
   if (result.provider !== 'google') {
     throw new ApiError('NOT_SUPPORTED', 'Sign-in with X is not available yet. Please use Google or your email.')
   }
+  const body = { idToken: result.idToken, nonce: result.nonce }
+  const fallbackEmail = () => String(decodeJwtPayload(result.idToken).email ?? '')
   try {
-    const visitor = await apiRequest<ApiVisitor>('/Visitor/google', {
-      method: 'POST',
-      body: { idToken: result.idToken, nonce: result.nonce },
-    })
+    if (role === 'creator') {
+      // Creator sign-up (Creator PDF p.4): POST /Creator/google
+      const session = await apiRequest<ApiCreatorSession>('/Creator/google', { method: 'POST', body })
+      return fromToken(session.email || fallbackEmail(), session.token)
+    }
+    const visitor = await apiRequest<ApiVisitor>('/Visitor/google', { method: 'POST', body })
     if (!visitor.token) throw new ApiError('UNKNOWN', 'Google sign-in did not complete. Please try again.')
-    const email = visitor.user?.login ?? String(decodeJwtPayload(result.idToken).email ?? '')
-    return fromToken(email, visitor.token)
+    return fromToken(visitor.user?.login ?? fallbackEmail(), visitor.token)
   } catch (error) {
     throw toApiError(error)
   }
 }
 
-async function mockCompleteExternalSignIn(result: ExternalAuthResult): Promise<User> {
+async function mockCompleteExternalSignIn(result: ExternalAuthResult, role: AccountRole): Promise<User> {
   if (result.provider === 'google') {
     // The mock trusts the token's claims; the API verifies the signature.
     let claims: Record<string, unknown>
@@ -319,11 +393,11 @@ async function mockCompleteExternalSignIn(result: ExternalAuthResult): Promise<U
       await delay(null)
       throw new ApiError('INVALID_TOKEN', 'Google sign-in could not be confirmed. Please try again.')
     }
-    return delay(toUser(claims.email, typeof claims.name === 'string' ? claims.name : undefined))
+    return delay(toUser(claims.email, typeof claims.name === 'string' ? claims.name : undefined, role))
   }
   // Without a backend the X code cannot be exchanged, so the real X profile is
-  // unknown here: the consent screen was real, the signed-in fan is a demo one.
-  return delay(toUser('x.fan@example.com', 'X Fan'))
+  // unknown here: the consent screen was real, the signed-in account is a demo one.
+  return delay(toUser(role === 'creator' ? 'x.creator@example.com' : 'x.fan@example.com', undefined, role))
 }
 
 // ---------- Password reset ----------
@@ -342,6 +416,15 @@ export async function requestPasswordReset(email: string): Promise<void> {
   } catch (error) {
     throw toApiError(error, [
       { code: 'NOT_FOUND', when: /does not exist/i, message: 'We could not find an account with this email.' },
+      // The API validates that the e-mail exists, then looks up only *active*
+      // fans; for a deleted (deactivated) account it crashes with a
+      // NullReferenceException instead of answering properly.
+      {
+        code: 'NOT_FOUND',
+        when: /NullReferenceException/,
+        message:
+          'We could not find an active account with this email. If you deleted your account, sign up again to create a new one.',
+      },
     ])
   }
 }
@@ -392,5 +475,8 @@ export async function deleteAccount(user: User, reason: string): Promise<void> {
 export async function getVerificationMessage(email: string): Promise<VerificationMessage | null> {
   const user = findUser(email)
   if (!user || user.verified) return delay(null, 200)
-  return delay({ to: user.email, token: user.verificationToken, sentAt: user.verificationSentAt }, 200)
+  return delay(
+    { to: user.email, token: user.verificationToken, sentAt: user.verificationSentAt, role: user.role ?? 'fan' },
+    200,
+  )
 }

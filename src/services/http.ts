@@ -91,8 +91,16 @@ export async function apiRequest<T>(path: string, { method = 'GET', body, token 
   }
   if (!response.ok || !envelope.success) {
     const errors = envelope.errors ?? []
-    const message = errors.map((error) => error.message).find(Boolean) ?? 'Something went wrong. Please try again.'
-    throw new HttpError(response.status, message, errors.map((error) => error.code ?? ''))
+    const codes = errors.map((error) => error.code ?? '')
+    // BaseService.NotifyException reports caught .NET exceptions with the type
+    // name as the code ("NullReferenceException": "Object reference not set to
+    // an instance of an object."). That text means nothing to a fan; the codes
+    // are kept so api.ts can still recognise specific cases.
+    const crashed = codes.some((code) => code.endsWith('Exception'))
+    const message = crashed
+      ? 'Something went wrong on our side. Please try again.'
+      : (errors.map((error) => error.message).find(Boolean) ?? 'Something went wrong. Please try again.')
+    throw new HttpError(response.status, message, codes)
   }
   return envelope.data as T
 }

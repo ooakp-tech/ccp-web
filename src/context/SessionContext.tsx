@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { User } from '../types'
+import type { AccountRole, User } from '../types'
 
 /**
  * Client-side state that travels across the sign-up steps:
@@ -18,11 +18,13 @@ interface SessionState {
   user: User | null
   /** Address waiting for e-mail verification; drives the "Check your email" screen. */
   pendingEmail: string | null
+  /** Whose sign-up is waiting: fan ("Check your email") or creator ("Verify your email"). */
+  pendingRole: AccountRole
   marketingOptIn: boolean
 }
 
 interface SessionContextValue extends SessionState {
-  startVerification: (email: string, marketingOptIn: boolean) => void
+  startVerification: (email: string, marketingOptIn: boolean, role?: AccountRole) => void
   completeVerification: () => void
   setMarketingOptIn: (value: boolean) => void
   signInAs: (user: User) => void
@@ -32,12 +34,16 @@ interface SessionContextValue extends SessionState {
 const STORAGE_KEY = 'velvetfx.session'
 
 // "Stay Updated" is switched on in the mockup (PDF p.4), so that is the default.
-const INITIAL_STATE: SessionState = { user: null, pendingEmail: null, marketingOptIn: true }
+const INITIAL_STATE: SessionState = { user: null, pendingEmail: null, pendingRole: 'fan', marketingOptIn: true }
 
 function loadState(): SessionState {
   try {
     const stored = sessionStorage.getItem(STORAGE_KEY)
-    return stored ? { ...INITIAL_STATE, ...JSON.parse(stored) } : INITIAL_STATE
+    if (!stored) return INITIAL_STATE
+    const state: SessionState = { ...INITIAL_STATE, ...JSON.parse(stored) }
+    // Sessions saved before creators existed have no role: they were fans.
+    if (state.user && !state.user.role) state.user = { ...state.user, role: 'fan' }
+    return state
   } catch {
     return INITIAL_STATE
   }
@@ -56,8 +62,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [state])
 
-  const startVerification = useCallback((email: string, marketingOptIn: boolean) => {
-    setState({ user: null, pendingEmail: email, marketingOptIn })
+  const startVerification = useCallback((email: string, marketingOptIn: boolean, role: AccountRole = 'fan') => {
+    setState({ user: null, pendingEmail: email, pendingRole: role, marketingOptIn })
   }, [])
 
   const completeVerification = useCallback(() => {

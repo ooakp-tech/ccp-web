@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout, OrDivider } from '../components/AuthLayout'
 import { Button } from '../components/Button'
 import { PasswordInput } from '../components/PasswordInput'
@@ -9,21 +9,33 @@ import { TextInput } from '../components/TextInput'
 import { ToggleSwitch } from '../components/ToggleSwitch'
 import { useSession } from '../context/SessionContext'
 import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
-import { registerUser, signInWithProvider } from '../services/api'
+import { registerCreator, registerUser, signInWithProvider } from '../services/api'
 import { beginOAuth, isProviderConfigured } from '../services/oauth'
-import type { SocialProvider } from '../types'
-import { validateEmail, validateNewPassword } from '../utils/validation'
+import type { AccountRole, SocialProvider } from '../types'
+import {
+  validateCreatorEmail,
+  validateCreatorPassword,
+  validateEmail,
+  validateNewPassword,
+} from '../utils/validation'
 
 /**
- * PDF p.4 (left): fan sign-up - Google, X, or e-mail + password.
+ * Fan PDF p.4 (left): fan sign-up - Google, X, or e-mail + password.
  * Submitting e-mail + password redirects to "Check your email" (PDF p.4 right).
+ *
+ * Creator PDF p.4: the same screen at /signup?type=creator, with the creator
+ * password rule and messages; Sign Up leads to the "Verify your email" pop-up
+ * (Creator PDF p.5), Google to the onboarding carousel (p.6).
  */
 export function SignUpPage() {
   const navigate = useNavigate()
   const session = useSession()
+  const [searchParams] = useSearchParams()
+  const role: AccountRole = searchParams.get('type') === 'creator' ? 'creator' : 'fan'
+  const isCreator = role === 'creator'
 
-  // "Change email" on the next screen returns here with the address prefilled.
-  const [email, setEmail] = useState(session.pendingEmail ?? '')
+  // "Change email" / "Use a different email" on the next screen returns here with the address prefilled.
+  const [email, setEmail] = useState(session.pendingRole === role ? (session.pendingEmail ?? '') : '')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
   const [formError, setFormError] = useState<string>()
@@ -33,13 +45,21 @@ export function SignUpPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    const nextErrors = { email: validateEmail(email), password: validateNewPassword(password) }
+    const nextErrors = isCreator
+      ? { email: validateCreatorEmail(email), password: validateCreatorPassword(password) }
+      : { email: validateEmail(email), password: validateNewPassword(password) }
     setErrors(nextErrors)
     setFormError(undefined)
     if (nextErrors.email || nextErrors.password) return
 
     setSubmitting(true)
     try {
+      if (isCreator) {
+        const { email: sentTo } = await registerCreator({ email, password, marketingOptIn: session.marketingOptIn })
+        session.startVerification(sentTo, session.marketingOptIn, 'creator')
+        navigate(PATHS.home)
+        return
+      }
       const result = await registerUser({ email, password, marketingOptIn: session.marketingOptIn })
       // Mock: "Check your email" (PDF p.4 right). API: no verification step yet, straight to home.
       if (result.kind === 'verify') session.startVerification(result.email, session.marketingOptIn)
@@ -57,10 +77,12 @@ export function SignUpPage() {
     try {
       // Real OAuth: leaves for the provider and comes back to OAuthCallbackPage.
       // "Stay Updated" survives the round trip in the session.
-      if (isProviderConfigured(provider)) await beginOAuth(provider, PATHS.signUp)
+      if (isProviderConfigured(provider)) {
+        await beginOAuth(provider, isCreator ? PATHS.creatorSignUp : PATHS.signUp, role)
+      }
       // Social accounts arrive already verified, so they skip the e-mail step.
-      session.signInAs(await signInWithProvider(provider))
-      navigate(PATHS.home)
+      session.signInAs(await signInWithProvider(provider, role))
+      navigate(isCreator ? PATHS.creatorOnboarding : PATHS.home)
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Something went wrong. Please try again.')
       setSocialBusy(null)
@@ -69,7 +91,7 @@ export function SignUpPage() {
 
   return (
     <AuthLayout>
-      <h1 className="visually-hidden">Sign up as a fan</h1>
+      <h1 className="visually-hidden">{isCreator ? 'Sign up as a creator' : 'Sign up as a fan'}</h1>
 
       <SocialButtons busy={socialBusy} disabled={busy} onSelect={handleSocial} />
       <OrDivider />

@@ -3,6 +3,11 @@ import { DEMO_MODE } from '../config'
 import { useSession } from '../context/SessionContext'
 import { AccountSettingsPage } from '../pages/AccountSettingsPage'
 import { CheckEmailPage } from '../pages/CheckEmailPage'
+import { CreatorHomePage } from '../pages/CreatorHomePage'
+import { CreatorOnboardingPage } from '../pages/CreatorOnboardingPage'
+import { CreatorReferralPage } from '../pages/CreatorReferralPage'
+import { CreatorVerifyEmailPage } from '../pages/CreatorVerifyEmailPage'
+import { CreatorVerifyPage } from '../pages/CreatorVerifyPage'
 import { DeleteAccountPage } from '../pages/DeleteAccountPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
 import { HomePage } from '../pages/HomePage'
@@ -27,10 +32,20 @@ import type { User } from '../types'
  *   - neither                          -> sign-in
  */
 function HomeRoute() {
-  const { user, pendingEmail } = useSession()
-  if (user) return <HomePage user={user} />
-  if (pendingEmail) return <CheckEmailPage email={pendingEmail} />
+  const { user, pendingEmail, pendingRole } = useSession()
+  if (user) return user.role === 'creator' ? <CreatorHomePage user={user} /> : <HomePage user={user} />
+  if (pendingEmail) {
+    // Creator PDF p.5: "Verify your email" is also shown at velvetfx.com/home.
+    return pendingRole === 'creator' ? <CreatorVerifyEmailPage email={pendingEmail} /> : <CheckEmailPage email={pendingEmail} />
+  }
   return <Navigate to={PATHS.signIn} replace />
+}
+
+/** Creator onboarding screens: a signed-in fan goes home, anyone else to sign-in. */
+function RequireCreator({ children }: { children: JSX.Element }) {
+  const { user } = useSession()
+  if (!user) return <Navigate to={PATHS.signIn} replace />
+  return user.role === 'creator' ? children : <Navigate to={PATHS.home} replace />
 }
 
 /** Signed-in screens: anyone else goes to sign-in. */
@@ -56,6 +71,10 @@ export function AppRoutes() {
       <Route path={PATHS.forgotPassword} element={<ForgotPasswordPage />} />
       <Route path={`${PATHS.resetPassword}/:hash`} element={<ResetPasswordPage />} />
       <Route path={`${PATHS.oauthCallback}/:provider`} element={<OAuthCallbackPage />} />
+      {/* Creator sign-up PDF (phase 1); the sign-up form itself is /signup?type=creator */}
+      <Route path={PATHS.creatorVerify} element={<CreatorVerifyPage />} />
+      <Route path={PATHS.creatorOnboarding} element={<RequireCreator><CreatorOnboardingPage /></RequireCreator>} />
+      <Route path={PATHS.creatorReferral} element={<RequireCreator><CreatorReferralPage /></RequireCreator>} />
       {/* Fan Delete Account PDF */}
       <Route path={PATHS.settings} element={<RequireUser render={(user) => <SettingsPage user={user} />} />} />
       <Route

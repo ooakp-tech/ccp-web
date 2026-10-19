@@ -1,5 +1,9 @@
+/** Fan = Visitor in the API, creator = Presenter. */
+export type AccountRole = 'fan' | 'creator'
+
 export interface User {
   email: string
+  role: AccountRole
   displayName: string
   /** Shown as @handle in the account drawer. */
   handle: string
@@ -44,4 +48,6 @@ export interface VerificationMessage {
   to: string
   token: string
   sentAt: string
+  /** Fan: "Verify your VELVET FX account" (Fan PDF p.5). Creator: "Confirm your VELVET FX account" (Creator PDF p.5). */
+  role: AccountRole
 }

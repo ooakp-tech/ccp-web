@@ -20,7 +20,7 @@
  */
 import { GOOGLE_CLIENT_ID, X_CLIENT_ID } from '../config'
 import { PATHS } from '../routes/paths'
-import type { ExternalAuthResult, SocialProvider } from '../types'
+import type { AccountRole, ExternalAuthResult, SocialProvider } from '../types'
 
 const PENDING_KEY = 'velvetfx.oauth'
 
@@ -39,6 +39,8 @@ interface PendingOAuth {
   codeVerifier?: string
   /** Screen to go back to if the user cancels or something fails. */
   returnTo: string
+  /** Fan or creator sign-up / sign-in: decides which API endpoint finishes it. */
+  role: AccountRole
 }
 
 export class OAuthError extends Error {
@@ -73,9 +75,13 @@ async function pkceChallenge(verifier: string): Promise<string> {
 }
 
 /** Leaves the app for the provider's consent screen. Never resolves normally. */
-export async function beginOAuth(provider: SocialProvider, returnTo: string): Promise<never> {
+export async function beginOAuth(
+  provider: SocialProvider,
+  returnTo: string,
+  role: AccountRole = 'fan',
+): Promise<never> {
   const state = randomString()
-  const pending: PendingOAuth = { provider, state, returnTo }
+  const pending: PendingOAuth = { provider, state, returnTo, role }
   let url: URL
 
   if (provider === 'google') {
@@ -125,6 +131,11 @@ function readPending(): PendingOAuth | null {
 /** Where to send the user back after a failed or cancelled sign-in. */
 export function pendingReturnTo(): string {
   return readPending()?.returnTo ?? PATHS.signIn
+}
+
+/** Whether the pending sign-in was started from the fan or the creator sign-up. */
+export function pendingRole(): AccountRole {
+  return readPending()?.role ?? 'fan'
 }
 
 export function clearPendingOAuth(): void {

@@ -40,7 +40,12 @@ input {
   position: relative;
   width: 100%;
   max-width: var(--shell-max-width);
-  height: 100vh;
+  /* 100% of html/body/#root is the viewport with the browser bars showing, so
+     the tab bar at the bottom is always on screen. 100dvh then follows the bars
+     as they hide and show. Not 100vh: that is the height *without* the bars, and
+     browsers without dvh (Samsung Internet < 21, Safari < 15.4) would push the
+     bottom tab bar, including "Menu", under their toolbar. */
+  height: 100%;
   height: 100dvh;
   margin: 0 auto;
   overflow: hidden;

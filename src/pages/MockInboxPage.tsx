@@ -40,6 +40,9 @@ export function MockInboxPage() {
     }
   }, [pendingEmail])
 
+  // Creator PDF p.5 shows the creator variant: "Confirm your VELVET FX account".
+  const isCreator = message?.role === 'creator'
+
   return (
     <div className="screen mail">
       <header className="mail__bar">
@@ -61,7 +64,7 @@ export function MockInboxPage() {
       {message && (
         <>
           <section className="mail__head">
-            <h1>Verify your VELVET FX account</h1>
+            <h1>{isCreator ? 'Confirm your VELVET FX account' : 'Verify your VELVET FX account'}</h1>
             <div className="mail__sender">
               <img src={asset('email/velvet-sender-avatar.png')} alt="" width={50} height={50} />
               <div>
@@ -78,15 +81,26 @@ export function MockInboxPage() {
               <div className="mail-card__content">
                 <img className="mail-card__logo" src={asset('email/velvet-email-logo.svg')} alt="VELVET FX" />
                 <h2>Welcome to VELVET FX</h2>
-                <p>
-                  We&apos;re excited to have you here. Verify your email to activate your account and get started on
-                  the <strong>VELVET FX</strong> platform — we&apos;re thrilled about your sign-up.
-                </p>
-                <Link className="mail-card__cta" to={`${PATHS.verifyEmail}?token=${encodeURIComponent(message.token)}`}>
-                  Verify your account
-                  <Icon name="arrow-right" size={20} />
+                {isCreator ? (
+                  <p>You&apos;re almost there. Confirm your email address and your account will be ready to go.</p>
+                ) : (
+                  <p>
+                    We&apos;re excited to have you here. Verify your email to activate your account and get started on
+                    the <strong>VELVET FX</strong> platform — we&apos;re thrilled about your sign-up.
+                  </p>
+                )}
+                <Link
+                  className="mail-card__cta"
+                  to={`${isCreator ? PATHS.creatorVerify : PATHS.verifyEmail}?token=${encodeURIComponent(message.token)}`}
+                >
+                  {isCreator ? 'Confirm your account' : 'Verify your account'}
+                  {!isCreator && <Icon name="arrow-right" size={20} />}
                 </Link>
-                <p className="mail-card__small">This link expires in 24 hours, so don&apos;t wait too long.</p>
+                <p className="mail-card__small">
+                  {isCreator
+                    ? 'This verification link expires in 24 hours, so please don2019t wait too long.'
+                    : 'This link expires in 24 hours, so don2019t wait too long.'}
+                </p>
                 <p className="mail-card__small">
                   Didn&apos;t sign up for VELVET FX? Ignore this email, or let us know at{' '}
                   <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>

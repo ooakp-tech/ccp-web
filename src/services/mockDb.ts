@@ -6,11 +6,15 @@
  * Nothing here is secure: the "hash" below is a plain checksum that only
  * keeps the typed password out of storage. Real hashing belongs on the server.
  */
+import type { AccountRole } from '../types'
+
 const STORAGE_KEY = 'velvetfx.mock.users'
 
 export interface MockUserRecord {
   email: string
   passwordChecksum: string
+  /** Missing on records saved before creators existed: fan. */
+  role?: AccountRole
   verified: boolean
   verificationToken: string
   verificationSentAt: string
