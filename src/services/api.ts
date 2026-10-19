@@ -25,7 +25,7 @@ import type {
   User,
   VerificationMessage,
 } from '../types'
-import { HttpError, apiRequest } from './http'
+import { HttpError, TIMEOUT_STATUS, apiRequest } from './http'
 import {
   checksum,
   deleteUser,
@@ -45,6 +45,7 @@ export type ApiErrorCode =
   | 'NOT_SUPPORTED'
   | 'SESSION_EXPIRED'
   | 'NETWORK'
+  | 'SERVER'
   | 'UNKNOWN'
 
 export class ApiError extends Error {
@@ -62,6 +63,8 @@ function toApiError(error: unknown, rules: { code: ApiErrorCode; when: RegExp; m
   if (error instanceof ApiError) return error
   if (!(error instanceof HttpError)) return new ApiError('UNKNOWN', 'Something went wrong. Please try again.')
   if (error.status === 0) return new ApiError('NETWORK', error.message)
+  // 5xx or our own timeout: the API itself is failing, not the fan's input.
+  if (error.status >= 500 || error.status === TIMEOUT_STATUS) return new ApiError('SERVER', error.message)
   if (error.status === 401 || error.status === 403) return new ApiError('SESSION_EXPIRED', error.message)
   const haystack = `${error.codes.join(' ')} ${error.message}`
   const rule = rules.find((candidate) => candidate.when.test(haystack))
@@ -145,7 +148,9 @@ export async function registerUser(data: RegistrationData): Promise<Registration
     const apiError = toApiError(error, [
       { code: 'EMAIL_TAKEN', when: /already exists/i, message: 'An account with this email already exists. Sign in instead.' },
     ])
-    if (apiError.code === 'EMAIL_TAKEN' || apiError.code === 'NETWORK') throw apiError
+    // Only a normal 400 answer can be the deployed API's "saved, then failed" case;
+    // after a crash, timeout or network error a sign-in attempt would only double the wait.
+    if (apiError.code !== 'UNKNOWN') throw apiError
     try {
       return { kind: 'signed-in', user: await signIn({ email, password: data.password }) }
     } catch {

@@ -35,7 +35,22 @@ interface RequestOptions {
   token?: string
 }
 
+/**
+ * Give up after this long. The API's database calls fail only after SQL
+ * Server's ~30 s connection timeout when the database is unreachable; without
+ * a limit the button just keeps spinning.
+ */
+const REQUEST_TIMEOUT_MS = 20_000
+
+/** Status used for a request we abandoned after REQUEST_TIMEOUT_MS. */
+export const TIMEOUT_STATUS = 408
+
+const SERVER_TROUBLE_MESSAGE =
+  'VELVET FX is having trouble right now. Please try again in a few minutes.'
+
 export async function apiRequest<T>(path: string, { method = 'GET', body, token }: RequestOptions = {}): Promise<T> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   let response: Response
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
@@ -46,13 +61,22 @@ export async function apiRequest<T>(path: string, { method = 'GET', body, token 
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
     })
   } catch {
+    if (controller.signal.aborted) throw new HttpError(TIMEOUT_STATUS, SERVER_TROUBLE_MESSAGE)
     throw new HttpError(0, 'We could not reach VELVET FX. Check your connection and try again.')
+  } finally {
+    clearTimeout(timer)
   }
 
   if (response.status === 401 || response.status === 403) {
     throw new HttpError(response.status, 'Your session has expired. Please sign in again.')
+  }
+  // 500 from the API is an unhandled server exception (e.g. the database is
+  // unreachable) and has an empty body - nothing useful to show the fan.
+  if (response.status >= 500) {
+    throw new HttpError(response.status, SERVER_TROUBLE_MESSAGE)
   }
 
   let envelope: ApiEnvelope<T> | null = null
