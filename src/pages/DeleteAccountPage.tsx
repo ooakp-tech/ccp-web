@@ -27,7 +27,7 @@ export function DeleteAccountPage({ user }: { user: User }) {
     setError(undefined)
     setDeleting(true)
     try {
-      await deleteAccount(user.email, reason)
+      await deleteAccount(user, reason)
       clearSession()
       navigate(PATHS.signIn, { replace: true, state: { accountDeleted: true } })
     } catch (err) {

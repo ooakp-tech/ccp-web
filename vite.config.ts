@@ -7,6 +7,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/',
+  // `npm run dev`: /api/... goes to the hosted ModelFeed API, so dev calls are
+  // same-origin exactly like production (where IIS serves both).
+  server: {
+    proxy: {
+      '/api': { target: 'https://velvet.love', changeOrigin: true, secure: true },
+    },
+  },
   build: {
     outDir: 'dist',
     // Hashed JS/CSS go to dist/static so they never mix with the hand-managed

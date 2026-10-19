@@ -11,6 +11,10 @@ export const PATHS = {
   signIn: '/signin', // PDF p.6 left  - sign-in
   oauthCallback: '/auth/callback', // + /google or /x - return URL registered with each provider
   mockInbox: '/mock-inbox', // DEMO ONLY - stands in for the user's mailbox (PDF p.5)
+  // Not in the PDFs: "Forgot password?" on sign-in, and the link in the reset e-mail
+  // the API sends (it appends /{hash} to the URL we give it).
+  forgotPassword: '/forgot-password',
+  resetPassword: '/reset-password',
 
   // Fan Delete Account PDF (10.4.26). The mockup's address bar shows
   // velvetfx.com/settings and a truncated velvetfx.com/settings/... for the rest.
@@ -44,7 +48,6 @@ export const PLACEHOLDER_ROUTES = {
   // Creator sign-up is a separate flow (its own PDF)
   joinAsCreator: { path: '/creator/join', title: 'Join as a Creator' },
   // Auth screens
-  forgotPassword: { path: '/forgot-password', title: 'Forgot password?' },
   terms: { path: '/terms', title: 'Terms and Conditions' },
   privacy: { path: '/privacy', title: 'Privacy Policy' },
   policies: { path: '/policies', title: 'All our policies' },

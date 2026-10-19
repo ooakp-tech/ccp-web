@@ -854,3 +854,18 @@
 .auth__panel {
   display: contents;
 }
+
+/* Heading + one line of help on the password screens (not in the PDFs). */
+.auth__intro h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.auth__intro p {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}

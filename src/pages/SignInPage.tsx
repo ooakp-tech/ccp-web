@@ -7,7 +7,7 @@ import { PasswordInput } from '../components/PasswordInput'
 import { SocialButtons } from '../components/SocialButtons'
 import { TextInput } from '../components/TextInput'
 import { useSession } from '../context/SessionContext'
-import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
+import { PATHS } from '../routes/paths'
 import { ApiError, signIn, signInWithProvider } from '../services/api'
 import { beginOAuth, isProviderConfigured } from '../services/oauth'
 import type { SocialProvider } from '../types'
@@ -32,10 +32,12 @@ export function SignInPage() {
 
   // Set by VerifyEmailPage. Not in the PDF: a one-line confirmation so the
   // redirect from the e-mail link does not feel like a dead end.
-  const routeState = location.state as { verified?: boolean; accountDeleted?: boolean } | null
+  const routeState = location.state as { verified?: boolean; accountDeleted?: boolean; passwordReset?: boolean } | null
   const justVerified = routeState?.verified === true
   // Set by DeleteAccountPage (Delete Account PDF p.6 lands here). Also not in the PDF.
   const accountDeleted = routeState?.accountDeleted === true
+  // Set by ResetPasswordPage.
+  const passwordReset = routeState?.passwordReset === true
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -91,6 +93,11 @@ export function SignInPage() {
           Your account has been deleted.
         </p>
       )}
+      {passwordReset && (
+        <p className="form-message form-message--success" role="status">
+          Your password has been updated. Sign in with your new password.
+        </p>
+      )}
 
       <form className="auth__stack" onSubmit={handleSubmit} noValidate>
         <TextInput
@@ -114,7 +121,7 @@ export function SignInPage() {
             error={errors.password}
             disabled={busy}
           />
-          <Link className="auth__forgot" to={PLACEHOLDER_ROUTES.forgotPassword.path}>
+          <Link className="auth__forgot" to={PATHS.forgotPassword}>
             Forgot password?
           </Link>
         </div>

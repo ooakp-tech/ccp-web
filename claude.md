@@ -81,7 +81,8 @@ Everything above is the original brief. This section records what has been built
 - The Fan delete-account flow from `VELVET FX - FAN - Delete Account Process - 10.4.26.pdf` (7 pages; screens on p.3-6) was added on 2026-10-19: Settings, Account, Delete my account and the reason pop-up, landing on sign-in. Clicked through at phone and desktop sizes with no console errors.
 - A full-width desktop layout (1024px and up) was added on 2026-10-12 at the user's request. The PDF has no desktop design, so that layout is our own.
 - `npm run build` passes. The flow was clicked through in headless Chrome at phone and desktop sizes with no console errors.
-- Not done: hosting on a real IIS server has never been tested (only `vite preview`).
+- Hosted: the React build is on IIS at http://velvet.love (GitHub Actions `deploy.yml` -> Windows EC2). The ModelFeed API is an IIS application under the same site: https://velvet.love/api, Swagger at https://velvet.love/api/index.html.
+- Backend integration (2026-10-19): sign-up, sign-in, Google, forgot/reset password and delete (deactivate) call the real API through `src/services/api.ts`. Verified against a stand-in of the endpoints (not the live API, at the user's request); not yet clicked through against the live API.
 - Git: the desktop-layout changes are uncommitted on `main` (`src/styles/desktop.css` is new). Commit only when the user asks.
 - The source PDFs and the asset pack folder (`velvet-fx-frontend-assets-V2`) are no longer in the repo folder; the assets the app uses are already copied to `public/assets/`.
 
@@ -100,7 +101,9 @@ There is no automated test suite in the repo. Earlier checks used throwaway Pupp
 
 ## Where things are
 
-- `src/services/api.ts`: every placeholder API call (`registerUser`, `resendVerificationEmail`, `verifyHumanChallenge`, `verifyEmail`, `signIn`, `signInWithProvider`, `signOut`, `deleteAccount`, `getVerificationMessage`), each with a `TODO: call API` comment and a suggested endpoint. `src/services/mockDb.ts` is the pretend user table in `sessionStorage`.
+- Backend: ModelFeed ASP.NET Core API (.NET 5, EF Core, SQL Server on Amazon RDS), source at `C:/Users/BibhuRocks/Downloads/SOURCE CODE (1)/API/ModelFeed.Api-develop` (not a git repo; originals of the files changed on 2026-10-19 were backed up to the session scratchpad). Controllers are `api/[controller]` under the `/api` IIS app, so the frontend base URL is `/api/api` (`VITE_API_BASE_URL` in the committed `.env.production` / `.env.development`; dev proxies `/api` to https://velvet.love). A fan is a `Visitor`. Endpoints used: `POST /Visitor`, `POST /Auth/login`, `POST /Visitor/google` (added by us), `POST /Auth/forgetpassword`, `POST /Auth/changepassword`, `PATCH /Visitor/deactivate`. Responses are `{ success, data, errors }`, unwrapped by `src/services/http.ts`. Never write the RDS or other server credentials into either repo or these notes.
+- API CHANGES WE MADE (NEED RE-PUBLISHING): `SENDWELCOMECHATMESSAGE` SKIPS FANS WITHOUT A CREATOR (IT CRASHED REGISTRATION); `VISITORSERVICE.GOOGLESIGNINASYNC` + `GOOGLESETTINGS:CLIENTID` + `GOOGLE.APIS.AUTH`; SWAGGER ENDPOINT MADE RELATIVE. THE SOURCE `APPSETTINGS.JSON` STILL POINTS AT THE OLD AZURE SQL SERVER; THE SERVER'S OWN APPSETTINGS (RDS) MUST BE KEPT WHEN PUBLISHING.
+- `src/services/api.ts`: every placeholder API call (`registerUser`, `resendVerificationEmail`, `verifyHumanChallenge`, `verifyEmail`, `signIn`, `signInWithProvider`, `signOut`, `deleteAccount`, `requestPasswordReset`, `resetPassword`, `getVerificationMessage`). Each calls the API, or the mock when `USE_MOCK_API` (empty `VITE_API_BASE_URL`). E-mail verification, X sign-in, Stay Updated and the delete reason have no API support yet. `src/services/mockDb.ts` is the mock user table in `sessionStorage`.
 - `src/context/SessionContext.tsx`: user, pending e-mail and marketing opt-in, mirrored to `sessionStorage` (`velvetfx.session`). No passwords are stored.
 - `src/routes/paths.ts`: `PATHS` for the PDF screens and `PLACEHOLDER_ROUTES` for every link whose destination the PDF does not show. `src/routes/AppRoutes.tsx` holds the `/home` gate.
 - `src/config.ts`: `DEMO_MODE` (turns the simulated inbox on or off), `MOCK_LATENCY_MS`, `asset()`.
@@ -121,6 +124,8 @@ There is no automated test suite in the repo. Earlier checks used throwaway Pupp
 | 6 left | Sign-in | `/signin` | `pages/SignInPage` |
 | 6 centre | Home | `/home` when signed in | `pages/HomePage` |
 | 6 right | Account drawer | `/home` | `components/AccountDrawer` |
+| – | Forgot password (not in PDF) | `/forgot-password` | `pages/ForgotPasswordPage` |
+| – | Reset password, e-mail link (not in PDF) | `/reset-password/:hash` | `pages/ResetPasswordPage` |
 
 Delete Account PDF:
 
@@ -141,7 +146,7 @@ Signed-in screens share `components/SignedInLayout` (tab bar + drawer); routes n
 - Sizes inside screens use container units (`cqw`/`cqh`) relative to `.app-shell`, always capped with `min()`/`clamp()`.
 - Photos (if they return) go through `components/Picture` (AVIF with WebP fallback), logos through `components/BrandLogo`, icons through `components/Icon` (CSS mask).
 - Mark anything not shown in the PDF with an `ASSUMPTION` comment and list it in the README.
-- No real network calls: new backend interactions go in `src/services/api.ts` as mocked functions.
+- All backend calls go through `src/services/api.ts` (real endpoint + mock fallback); add new ones there, not in components.
 
 ## Decisions made without a design (open to change)
 
@@ -160,5 +165,6 @@ Signed-in screens share `components/SignedInLayout` (tab bar + drawer); routes n
 - Review the desktop layout with the user and adjust.
 - Test the build on a real IIS site with the URL Rewrite module.
 - Replace placeholder pages as their designs arrive (Creator sign-up has its own PDF, not yet supplied).
-- Wire `src/services/api.ts` to the ASP.NET Core backend when it exists.
+- Re-publish the API with the 2026-10-19 changes, then remove the register-then-login fallback in `registerUser`.
+- Add API support for e-mail verification, X sign-in, Stay Updated and the delete reason.
 - Add an in-repo end-to-end test if the user wants one.

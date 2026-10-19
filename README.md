@@ -109,30 +109,48 @@ screens, controls and assets. It applies from 1024px wide and does not change th
 | Account drawer | 400px panel on the right over a dimmed page. |
 | Settings, Account, Delete my account | 680px centred column under the top bar; the reason pop-up becomes a centred dialog. |
 
-## Plugging in the real API
+## Backend API (ModelFeed)
 
-Only `src/services/api.ts` needs to change. Each function carries a `TODO: call API` comment
-naming the endpoint it stands in for:
+The frontend talks to the existing **ModelFeed ASP.NET Core API** (.NET 5), hosted on the same IIS
+site as an application at `https://velvet.love/api` (Swagger: `https://velvet.love/api/index.html`).
+Its controllers are routed `api/[controller]`, so the base URL is **`/api/api`**. A fan is a
+*Visitor* in that API. Source: `C:\Users\BibhuRocks\Downloads\SOURCE CODE (1)\API\ModelFeed.Api-develop`.
 
-| Function | Used by | Suggested endpoint |
+All calls are in `src/services/api.ts` (fetch wrapper: `src/services/http.ts`, which unwraps the
+API's `{ success, data, errors }` envelope into `ApiError` messages):
+
+| Function | Used by | Endpoint |
 | --- | --- | --- |
-| `registerUser` | Sign Up button | `POST /api/auth/register` |
-| `resendVerificationEmail` | Send again | `POST /api/auth/resend-verification` |
-| `verifyEmail` | e-mail link | `POST /api/auth/verify-email` |
-| `signIn` | Sign In button | `POST /api/auth/login` |
-| `completeExternalSignIn` | return from Google / X | `POST /api/auth/external/{provider}` (see below) |
-| `signInWithProvider` | Continue with Google / X when no client ID is set | none – delete once both providers are configured |
-| `signOut` | Logout | `POST /api/auth/logout` |
-| `deleteAccount` | DELETE MY ACCOUNT (reason pop-up) | `DELETE /api/account` with `{ reason }` |
-| `verifyHumanChallenge` | "Verify you are human" | replace `HumanCheck` with the real Cloudflare Turnstile widget |
-| `getVerificationMessage` | demo inbox | none – delete with the demo inbox |
+| `registerUser` | Sign Up | `POST /Visitor` `{ name, user: { login, password } }` → signs the fan in |
+| `signIn` | Sign In | `POST /Auth/login` `{ login, password }` (deactivated fans are refused) |
+| `completeExternalSignIn` | return from Google | `POST /Visitor/google` `{ idToken, nonce }` (added 2026-10-19) |
+| `requestPasswordReset` | Forgot password? (`/forgot-password`) | `POST /Auth/forgetpassword` `{ email, url }` |
+| `resetPassword` | link in the reset e-mail (`/reset-password/:hash`) | `POST /Auth/changepassword` `{ hash, password }` |
+| `deleteAccount` | DELETE MY ACCOUNT | `PATCH /Visitor/deactivate` with `Authorization: Bearer <token>` |
+| `signOut` | Logout | none – the API issues stateless JWTs; the token is dropped client-side |
 
-Keep throwing `ApiError` with the existing codes (`EMAIL_TAKEN`, `INVALID_CREDENTIALS`,
-`EMAIL_NOT_VERIFIED`, `INVALID_TOKEN`) and the screens keep working unchanged. Then delete
-`mockDb.ts`, set `DEMO_MODE = false` in `src/config.ts` (removes `/mock-inbox` and its shortcut on
-the "Check your email" screen), and load the signed-in user from the API instead of
-`sessionStorage` in `SessionContext`.
+Configuration: `VITE_API_BASE_URL` in `.env.production` and `.env.development` (both committed,
+`/api/api`). `npm run dev` proxies `/api` to `https://velvet.love` (`vite.config.ts`). Set
+`VITE_API_BASE_URL=` (empty) in `.env.local` to go back to the in-browser mocks, which also bring
+back the e-mail-verification screens and the demo inbox.
 
+Not in the API yet, so still mock-only or unavailable:
+
+- **E-mail verification** (Check your email, Send again, Verify your account): the API activates
+  fans immediately, so with the API, Sign Up goes straight to Home.
+- **X sign-in**: no endpoint; the button says it is not available yet.
+- **"Stay Updated"** and the **delete reason** have no fields in the API.
+- The JWT lives in `sessionStorage` with the rest of the session (one tab, until it closes).
+
+API changes made for VELVET FX (2026-10-19, need a re-publish of the API):
+
+- `VisitorService.SendWelcomeChatMessage` skips fans without a creator. The deployed API saves the
+  fan and then answers 400 on that step; `registerUser` signs in with the same credentials to
+  recover, which can be removed once the fixed API is live.
+- `POST api/Visitor/google` + `GoogleSettings:ClientId` in `appsettings.json` + package
+  `Google.Apis.Auth`: verifies the Google ID token and signs in, or creates, the fan.
+- Swagger UI loads `swagger/v1/swagger.json` relative to itself (it used to fetch the React site's
+  `index.html`).
 ## Google and X sign-in
 
 "Continue with Google" and "Continue with X" (sign-up and sign-in) use the providers' real

@@ -41,7 +41,9 @@ export function SignUpPage() {
     setSubmitting(true)
     try {
       const result = await registerUser({ email, password, marketingOptIn: session.marketingOptIn })
-      session.startVerification(result.email, session.marketingOptIn)
+      // Mock: "Check your email" (PDF p.4 right). API: no verification step yet, straight to home.
+      if (result.kind === 'verify') session.startVerification(result.email, session.marketingOptIn)
+      else session.signInAs(result.user)
       navigate(PATHS.home)
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Something went wrong. Please try again.')

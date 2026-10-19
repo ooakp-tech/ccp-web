@@ -4,11 +4,13 @@ import { useSession } from '../context/SessionContext'
 import { AccountSettingsPage } from '../pages/AccountSettingsPage'
 import { CheckEmailPage } from '../pages/CheckEmailPage'
 import { DeleteAccountPage } from '../pages/DeleteAccountPage'
+import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
 import { HomePage } from '../pages/HomePage'
 import { LandingPage } from '../pages/LandingPage'
 import { MockInboxPage } from '../pages/MockInboxPage'
 import { OAuthCallbackPage } from '../pages/OAuthCallbackPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { ResetPasswordPage } from '../pages/ResetPasswordPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { SignInPage } from '../pages/SignInPage'
 import { SignUpPage } from '../pages/SignUpPage'
@@ -51,6 +53,8 @@ export function AppRoutes() {
       <Route path={PATHS.home} element={<HomeRoute />} />
       <Route path={PATHS.verifyEmail} element={<VerifyEmailPage />} />
       <Route path={PATHS.signIn} element={<SignInPage />} />
+      <Route path={PATHS.forgotPassword} element={<ForgotPasswordPage />} />
+      <Route path={`${PATHS.resetPassword}/:hash`} element={<ResetPasswordPage />} />
       <Route path={`${PATHS.oauthCallback}/:provider`} element={<OAuthCallbackPage />} />
       {/* Fan Delete Account PDF */}
       <Route path={PATHS.settings} element={<RequireUser render={(user) => <SettingsPage user={user} />} />} />
