@@ -146,6 +146,14 @@ consent screens once a client ID is set. Copy `.env.example` to `.env.local` and
 The values are baked in at build time, so set them before `npm run build`. An empty value keeps
 that provider simulated. Only client IDs go here; client secrets belong to the API.
 
+**Deployed builds (GitHub Actions → velvet.love):** `.env.local` is git-ignored, so the workflow
+(`.github/workflows/deploy.yml`) reads the same names from the repository's Actions **variables**
+(Settings → Secrets and variables → Actions → Variables → `VITE_GOOGLE_CLIENT_ID`,
+`VITE_X_CLIENT_ID`). Without them the live site silently uses the simulated sign-in, which jumps
+straight to `/home` as a demo fan. Google only accepts `https` redirect URIs outside `localhost`,
+so the site needs a certificate on IIS before `https://velvet.love/auth/callback/google` can be
+registered.
+
 How it works (`src/services/oauth.ts`, `pages/OAuthCallbackPage`):
 
 - **Google**: OpenID Connect redirect with `response_type=id_token`, plus `state` and `nonce`.

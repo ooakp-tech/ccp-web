@@ -21,8 +21,16 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    # Vite bakes VITE_* values into the bundle at build time. .env.local is
+    # git-ignored, so CI reads them from the repository's Actions variables
+    # (Settings > Secrets and variables > Actions > Variables). Client IDs are
+    # public; never pass a client secret here. An empty value keeps that
+    # provider's simulated sign-in.
     - name: Build React app
       run: npm run build
+      env:
+        VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+        VITE_X_CLIENT_ID: ${{ vars.VITE_X_CLIENT_ID }}
 
     # --- Temporarily allow this runner's IP through the EC2 security group ---
     - name: Configure AWS credentials
