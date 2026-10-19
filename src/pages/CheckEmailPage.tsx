@@ -4,7 +4,6 @@ import { BrandLogo } from '../components/BrandLogo'
 import { Button } from '../components/Button'
 import { HumanCheck } from '../components/HumanCheck'
 import { Icon } from '../components/Icon'
-import { Picture } from '../components/Picture'
 import { DEMO_MODE } from '../config'
 import { useSession } from '../context/SessionContext'
 import { PATHS } from '../routes/paths'
@@ -52,15 +51,16 @@ export function CheckEmailPage({ email }: { email: string }) {
 
   return (
     <div className="screen check-email">
-      <div className="check-email__photo">
-        <Picture name="auth/verification-portrait" alt="Smiling creator in a white top." loading="eager" />
-        <BrandLogo variant="app-mark" className="app-mark" />
+      {/* ASSUMPTION (2026-10-19, at the user's request): the photo is replaced by
+          the sign-up page's centred logo on the white, purple-glow page. */}
+      <header className="check-email__header">
+        <BrandLogo variant="stacked" onLight className="auth__logo" alt="VELVET FX - Premium content platform" />
         {DEMO_MODE && (
           <Link className="demo-pill" to={PATHS.mockInbox}>
             Demo: open inbox
           </Link>
         )}
-      </div>
+      </header>
 
       <main className="check-email__dialog" role="dialog" aria-labelledby="check-email-title">
         <button type="button" className="round-close" onClick={handleClose} aria-label="Close">

@@ -19,7 +19,7 @@ export function PlaceholderPage({ title }: { title: string }) {
 
   return (
     <div className="screen auth status-page">
-      <BrandLogo variant="horizontal" className="status-page__logo" />
+      <BrandLogo variant="horizontal" onLight className="status-page__logo" />
       <h1>{title}</h1>
       <p className="status-page__text">This screen is not part of the Fan sign-up mockup yet.</p>
       <Button variant="outline" onClick={goBack}>

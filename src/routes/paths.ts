@@ -9,7 +9,14 @@ export const PATHS = {
   //                PDF p.6 centre/right - home + account drawer (signed in)
   verifyEmail: '/verify-email', // target of the e-mail button (PDF p.5), redirects to sign-in
   signIn: '/signin', // PDF p.6 left  - sign-in
+  oauthCallback: '/auth/callback', // + /google or /x - return URL registered with each provider
   mockInbox: '/mock-inbox', // DEMO ONLY - stands in for the user's mailbox (PDF p.5)
+
+  // Fan Delete Account PDF (10.4.26). The mockup's address bar shows
+  // velvetfx.com/settings and a truncated velvetfx.com/settings/... for the rest.
+  settings: '/settings', // Delete PDF p.4 right - Settings
+  accountSettings: '/settings/account', // Delete PDF p.5 left - Account
+  deleteAccount: '/settings/account/delete', // Delete PDF p.5 centre/right - Delete my account + reason pop-up
 } as const
 
 export interface PlaceholderRoute {
@@ -50,7 +57,18 @@ export const PLACEHOLDER_ROUTES = {
   wallet: { path: '/account/wallet', title: 'Wallet', requiresAuth: true },
   following: { path: '/account/following', title: 'Following', requiresAuth: true },
   subscriptions: { path: '/account/subscriptions', title: 'Subscriptions', requiresAuth: true },
-  settings: { path: '/account/settings', title: 'Settings', requiresAuth: true },
   languages: { path: '/account/languages', title: 'Multiple Languages', requiresAuth: true },
   help: { path: '/account/help', title: 'Help and Support', requiresAuth: true },
+  // Settings and Account (Delete PDF p.4-5): rows the mockup crosses out in red
+  // as "not set up yet". "Become a creator" reuses joinAsCreator above.
+  paymentSettings: { path: '/settings/payments', title: 'Payments and subscriptions', requiresAuth: true },
+  notificationSettings: { path: '/settings/notifications', title: 'Notifications', requiresAuth: true },
+  privacySettings: { path: '/settings/privacy', title: 'Privacy and safety', requiresAuth: true },
+  helpSettings: { path: '/settings/help', title: 'Help, terms and support', requiresAuth: true },
+  accountInfo: { path: '/settings/account/info', title: 'Account Info', requiresAuth: true },
+  passwordSecurity: {
+    path: '/settings/account/security',
+    title: 'Password and security settings',
+    requiresAuth: true,
+  },
 } as const satisfies Record<string, PlaceholderRoute>

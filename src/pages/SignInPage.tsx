@@ -9,6 +9,7 @@ import { TextInput } from '../components/TextInput'
 import { useSession } from '../context/SessionContext'
 import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
 import { ApiError, signIn, signInWithProvider } from '../services/api'
+import { beginOAuth, isProviderConfigured } from '../services/oauth'
 import type { SocialProvider } from '../types'
 import { validateEmail, validateRequiredPassword } from '../utils/validation'
 
@@ -31,7 +32,10 @@ export function SignInPage() {
 
   // Set by VerifyEmailPage. Not in the PDF: a one-line confirmation so the
   // redirect from the e-mail link does not feel like a dead end.
-  const justVerified = (location.state as { verified?: boolean } | null)?.verified === true
+  const routeState = location.state as { verified?: boolean; accountDeleted?: boolean } | null
+  const justVerified = routeState?.verified === true
+  // Set by DeleteAccountPage (Delete Account PDF p.6 lands here). Also not in the PDF.
+  const accountDeleted = routeState?.accountDeleted === true
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -60,6 +64,8 @@ export function SignInPage() {
     setFormError(undefined)
     setSocialBusy(provider)
     try {
+      // Real OAuth: leaves for the provider and comes back to OAuthCallbackPage.
+      if (isProviderConfigured(provider)) await beginOAuth(provider, PATHS.signIn)
       session.signInAs(await signInWithProvider(provider))
       navigate(PATHS.home)
     } catch (error) {
@@ -78,6 +84,11 @@ export function SignInPage() {
       {justVerified && (
         <p className="form-message form-message--success" role="status">
           Your email is verified. Sign in to continue.
+        </p>
+      )}
+      {accountDeleted && (
+        <p className="form-message form-message--success" role="status">
+          Your account has been deleted.
         </p>
       )}
 

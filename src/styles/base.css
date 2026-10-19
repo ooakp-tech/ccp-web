@@ -12,10 +12,8 @@ body,
 
 body {
   margin: 0;
-  background:
-    radial-gradient(ellipse at 50% 0%, #2a0f3d 0%, transparent 60%),
-    #050409;
-  color: var(--velvet-text);
+  background: #ececf0;
+  color: var(--ink);
   font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.4;
@@ -30,7 +28,7 @@ input {
 }
 
 :focus-visible {
-  outline: 2px solid #f6a5ff;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
 
@@ -46,15 +44,15 @@ input {
   height: 100dvh;
   margin: 0 auto;
   overflow: hidden;
-  background: var(--velvet-bg);
+  background: var(--page);
   container-type: size;
 }
 
 @media (min-width: 481px) {
   .app-shell {
     box-shadow:
-      0 0 0 1px #ffffff14,
-      0 0 120px #7e21ef40;
+      0 0 0 1px #0000000f,
+      0 10px 60px #7e21ef26;
   }
 }
 
@@ -82,7 +80,7 @@ input {
 }
 
 .text-accent {
-  color: var(--velvet-link);
+  color: var(--brand-strong);
 }
 
 /* Icon.tsx: SVG used as a mask so it is painted in the current text colour. */

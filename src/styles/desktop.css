@@ -1,7 +1,9 @@
 /* ---------- Desktop layout (1024px and up) ----------
    ASSUMPTION: the PDF only shows the phone view, so this layout is ours. It
-   re-arranges the same screens, controls and assets across the full window;
-   nothing here changes the flow. Below 1024px the mockup layout applies. */
+   re-arranges the same screens and controls across the full window; nothing
+   here changes the flow. Below 1024px the mockup layout applies.
+   Since 2026-10-19 there are no photos: every screen is the sign-up page's
+   white page with a purple glow and a centred content column. */
 @media (min-width: 1024px) {
   .app-shell {
     max-width: none;
@@ -9,28 +11,10 @@
     --page-gutter: clamp(32px, 4vw, 80px);
   }
 
-  /* ----- Landing: copy on the left, photo on the right ----- */
-  .landing {
-    justify-content: flex-start;
-  }
-
-  .landing__bg {
-    left: 42%;
-  }
-
-  .landing__bg::after {
-    background:
-      linear-gradient(to right, var(--velvet-bg) 0%, #0d0b1799 16%, transparent 42%),
-      linear-gradient(to bottom, #0d0b1799 0%, transparent 18%, transparent 68%, var(--velvet-bg) 100%);
-  }
-
+  /* ----- Landing: centred logo, headline and CTAs ----- */
   .landing__header {
     gap: 24px;
     padding: 20px var(--page-gutter) 0;
-  }
-
-  .landing__wordmark {
-    height: 26px;
   }
 
   .landing__login {
@@ -38,7 +22,7 @@
   }
 
   .landing__nav a {
-    color: #f1eaf8;
+    color: var(--ink);
     font-size: 15px;
     font-weight: 500;
     text-decoration: none;
@@ -46,30 +30,32 @@
   }
 
   .landing__nav a:hover {
-    color: var(--velvet-link);
+    color: var(--brand-strong);
   }
 
   .landing__content {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
     justify-content: center;
-    width: min(54%, 720px);
-    padding: 32px 0 72px var(--page-gutter);
+    padding: 24px var(--page-gutter) 72px;
+  }
+
+  .landing__logo {
+    width: 300px;
+    margin-bottom: 40px;
   }
 
   .landing__title {
-    font-size: clamp(46px, 4.6cqw, 76px);
+    font-size: clamp(46px, 4.6cqw, 72px);
   }
 
   .landing__copy {
     max-width: 30em;
     margin: 20px 0 32px;
-    font-size: clamp(18px, 1.5cqw, 22px);
+    font-size: clamp(18px, 1.5cqw, 21px);
     line-height: 1.45;
   }
 
   .landing__actions {
+    justify-content: center;
     gap: 14px;
   }
 
@@ -95,85 +81,30 @@
     font-size: 16px;
   }
 
-  /* ----- Sign up / Sign in: photo left, form right ----- */
-  .auth--split {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .auth__visual {
-    position: relative;
-    display: block;
-    overflow: hidden;
-  }
-
-  .auth__visual img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 0;
-  }
-
-  .auth__visual::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(to left, #0d0b17 0%, transparent 22%),
-      linear-gradient(to bottom, transparent 55%, #0d0b17e6 92%);
-  }
-
-  .auth__tagline {
-    position: absolute;
-    z-index: 1;
-    bottom: 48px;
-    left: var(--page-gutter);
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(32px, 3cqw, 48px);
-    font-weight: 700;
-    line-height: 1.1;
-  }
-
-  .auth__tagline span {
-    display: block;
-  }
-
-  .auth__tagline-accent {
-    width: fit-content;
-    background: linear-gradient(90deg, #f6bcff, #e83df0 55%, #ff9af6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  /* ----- Sign up / Sign in: one centred form column ----- */
+  .auth {
+    align-items: center;
   }
 
   .auth__panel {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    align-items: center;
-    padding: 0 40px;
-    overflow-y: auto;
-  }
-
-  .auth__panel > * {
     width: 100%;
     max-width: 420px;
   }
 
   .auth__header {
-    padding-top: 24px;
+    padding-top: 32px;
   }
 
   .auth__logo {
-    width: 210px;
+    width: 230px;
   }
 
   .auth__body {
     margin-block: auto;
-    padding-block: 20px;
+    padding-block: 24px;
   }
 
   .auth__footer {
@@ -181,44 +112,20 @@
     font-size: 13px;
   }
 
-  /* ----- Check your email: photo left, dialog as a card on the right ----- */
+  /* ----- Check your email: logo on top, dialog as a centred card ----- */
   .check-email {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    overflow: hidden;
-    background: var(--velvet-auth-background);
+    align-items: center;
   }
 
-  .check-email__photo {
-    aspect-ratio: auto;
-    min-height: 0;
-  }
-
-  .check-email__photo img:not(.app-mark) {
-    object-position: 46% 30%;
+  .check-email__header {
+    width: 100%;
+    padding-top: 32px;
   }
 
   .check-email__dialog {
-    align-self: center;
-    justify-self: center;
-    width: min(100% - 64px, 480px);
-    max-height: calc(100% - 48px);
-    margin: 0;
+    width: min(100%, 480px);
+    margin: 32px 0 auto;
     padding: 28px 32px 32px;
-    overflow-y: auto;
-    border-bottom: 1px solid #c44cf0aa;
-    border-radius: 22px;
-    box-shadow: 0 0 40px #b13cf540;
-  }
-
-  .app-mark {
-    top: 24px;
-    left: var(--page-gutter);
-  }
-
-  .demo-pill {
-    top: 32px;
-    right: 24px;
   }
 
   /* ----- Simulated mailbox: centred reading column ----- */
@@ -247,9 +154,9 @@
     order: -1;
     padding: 12px var(--page-gutter);
     border-top: 0;
-    border-bottom: 1px solid #ffffff1a;
-    background: #0d0b17;
-    color: #c9c0d6;
+    border-bottom: 1px solid var(--divider);
+    background: var(--surface);
+    color: var(--muted);
   }
 
   .bottom-nav__brand {
@@ -273,13 +180,13 @@
   }
 
   .bottom-nav__item:not(.is-active):hover {
-    background: #ffffff14;
-    color: #fff;
+    background: var(--field);
+    color: var(--ink);
   }
 
   .bottom-nav__item.is-active {
-    background: #e31adf26;
-    color: #f6a5ff;
+    background: var(--brand-soft);
+    color: var(--brand-strong);
   }
 
   .bottom-nav__dot {
@@ -287,53 +194,26 @@
   }
 
   .bottom-nav__badge {
-    border-color: #0d0b17;
+    border-color: var(--surface);
   }
 
   /* The logo is in the top bar on desktop. */
-  .home-hero > .app-mark {
+  .home-hero__logo {
     display: none;
   }
 
   .home-hero {
-    display: flex;
-    align-items: center;
-    min-height: min(68cqh, 620px);
-    padding: 0 max(var(--page-gutter), calc((100% - 1200px) / 2));
-    text-align: left;
-  }
-
-  /* A fixed-width column on the right keeps the portrait crop sensible on any
-     window width; the edges fade into the page background. */
-  .home-hero__photo {
-    inset: 0 max(var(--page-gutter), calc((100% - 1200px) / 2)) 0 auto;
-    width: min(46cqw, 600px);
-  }
-
-  .home-hero__photo::after {
-    background:
-      linear-gradient(to right, var(--velvet-bg) 0%, transparent 30%, transparent 72%, var(--velvet-bg) 100%),
-      linear-gradient(to bottom, var(--velvet-bg) 0%, transparent 14%, transparent 55%, var(--velvet-bg) 96%);
-  }
-
-  .home-hero__content {
-    max-width: min(50%, 560px);
-    padding: 56px 0;
+    padding: clamp(64px, 10cqh, 120px) var(--page-gutter) 56px;
   }
 
   .home-hero h1 {
-    font-size: clamp(34px, 3.4cqw, 52px);
+    font-size: clamp(38px, 3.8cqw, 60px);
     white-space: normal;
   }
 
-  .home-hero__accent {
-    display: block;
-    width: fit-content;
-  }
-
   .home-hero p {
-    max-width: 20em;
-    margin: 14px 0 28px;
+    max-width: 22em;
+    margin: 16px auto 32px;
     font-size: clamp(19px, 1.7cqw, 24px);
     line-height: 1.35;
   }
@@ -368,11 +248,42 @@
     width: auto;
   }
 
+  /* ----- Settings screens: centred reading column ----- */
+  .settings__column {
+    width: min(100%, 680px);
+    margin: 0 auto;
+    padding: 40px var(--page-gutter) 64px;
+  }
+
+  .settings-header h1 {
+    font-size: 28px;
+  }
+
+  /* The bottom sheet becomes a centred dialog. */
+  .sheet {
+    align-items: center;
+    justify-content: center;
+    background: #1111118c;
+  }
+
+  .sheet__scrim {
+    position: absolute;
+    inset: 0;
+    background: none;
+  }
+
+  .sheet__panel {
+    position: relative;
+    width: min(100% - 48px, 520px);
+    padding: 28px;
+    border-radius: 20px;
+  }
+
   /* ----- Account drawer: fixed-width panel on the right ----- */
   .drawer__scrim {
     width: auto;
     flex: 1;
-    background: #0d0b1780;
+    background: #11111140;
   }
 
   .drawer__tab {

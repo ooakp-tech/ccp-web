@@ -28,7 +28,7 @@ export function PublicMenu({ open, onClose }: PublicMenuProps) {
   return (
     <div className="public-menu" role="dialog" aria-modal="true" aria-label="Menu">
       <header className="public-menu__header">
-        <BrandLogo variant="horizontal" className="public-menu__logo" />
+        <BrandLogo variant="horizontal" onLight className="public-menu__logo" />
         <button ref={closeRef} type="button" className="chip-button chip-button--solid" onClick={onClose}>
           Close
         </button>
@@ -45,13 +45,13 @@ export function PublicMenu({ open, onClose }: PublicMenuProps) {
       </nav>
 
       <footer className="public-menu__footer">
-        <Button to={PATHS.signUp} size="sm">
+        <Button to={PATHS.signUp} variant="outline" size="sm">
           Sign up as a Fan
         </Button>
-        <Button to={PATHS.signIn} variant="dark" size="sm">
+        <Button to={PATHS.signIn} variant="primary" size="sm">
           Login
         </Button>
-        <Button to={PLACEHOLDER_ROUTES.joinAsCreator.path} variant="outline" size="sm">
+        <Button to={PLACEHOLDER_ROUTES.joinAsCreator.path} variant="brand" size="sm">
           Join as a Creator
         </Button>
       </footer>

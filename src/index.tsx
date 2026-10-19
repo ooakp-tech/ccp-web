@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client'
 // ASSUMPTION: the PDF's font files were not supplied; Inter (UI) and
 // Montserrat (headlines) are the closest open-licensed matches.
 import '@fontsource-variable/inter'
-import '@fontsource-variable/montserrat'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/components.css'

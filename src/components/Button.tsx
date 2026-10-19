@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-type ButtonVariant = 'primary' | 'outline' | 'deep' | 'dark'
+type ButtonVariant = 'primary' | 'brand' | 'danger' | 'outline' | 'deep' | 'dark'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant

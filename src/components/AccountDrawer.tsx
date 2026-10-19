@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { PLACEHOLDER_ROUTES } from '../routes/paths'
+import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
 import type { PlaceholderRoute } from '../routes/paths'
 import type { User } from '../types'
 import { BrandLogo } from './BrandLogo'
@@ -19,7 +19,8 @@ const GROUP_FAN: DrawerLink[] = [
 ]
 
 const GROUP_APP: DrawerLink[] = [
-  { icon: 'settings', route: PLACEHOLDER_ROUTES.settings },
+  // Settings is a real screen since the Delete Account PDF (10.4.26).
+  { icon: 'settings', route: { path: PATHS.settings, title: 'Settings' } },
   { icon: 'languages', route: PLACEHOLDER_ROUTES.languages },
   { icon: 'help', route: PLACEHOLDER_ROUTES.help },
 ]
@@ -48,7 +49,7 @@ export function AccountDrawer({ open, user, loggingOut, onClose, onLogout }: Acc
       {/* The strip of home screen left of the panel closes the drawer, as does its "Menu" tile. */}
       <button type="button" className="drawer__scrim" onClick={onClose} aria-label="Close menu">
         <span className="drawer__tab">
-          <BrandLogo variant="stacked" className="drawer__tab-logo" alt="" />
+          <BrandLogo variant="stacked" onLight className="drawer__tab-logo" alt="" />
           <span>Menu</span>
         </span>
       </button>

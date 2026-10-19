@@ -11,6 +11,13 @@ export const DEMO_MODE = true
 /** Simulated network latency for the placeholder API, in milliseconds. */
 export const MOCK_LATENCY_MS = 700
 
+/**
+ * OAuth client IDs for "Continue with Google" / "Continue with X", from
+ * .env.local (see .env.example). Empty keeps that provider simulated.
+ */
+export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ?? ''
+export const X_CLIENT_ID = import.meta.env.VITE_X_CLIENT_ID?.trim() ?? ''
+
 export const SUPPORT_EMAIL = 'support@velvetfx.com'
 
 /** Resolves a file under public/assets against the configured Vite `base`. */

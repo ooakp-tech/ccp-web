@@ -39,7 +39,7 @@ export function VerifyEmailPage() {
 
   return (
     <div className="screen auth status-page">
-      <BrandLogo variant="stacked" className="auth__logo" alt="VELVET FX - Premium content platform" />
+      <BrandLogo variant="stacked" onLight className="auth__logo" alt="VELVET FX - Premium content platform" />
       {error ? (
         <>
           <p className="form-message form-message--error" role="alert">

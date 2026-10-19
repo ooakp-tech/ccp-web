@@ -1,4 +1,5 @@
-/* ---------- Button ---------- */
+/* ---------- Button ----------
+   Fanvue look: black primary pill, white outlined pill, brand-coloured CTA. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -6,8 +7,8 @@
   gap: 10px;
   min-height: 48px;
   padding: 0 22px;
-  border: 1.5px solid transparent;
-  color: #fff;
+  border: 1px solid transparent;
+  color: var(--ink);
   font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 600;
@@ -16,13 +17,10 @@
   white-space: nowrap;
   cursor: pointer;
   transition:
-    filter 0.15s,
+    background-color 0.15s,
+    border-color 0.15s,
     transform 0.05s;
   -webkit-tap-highlight-color: transparent;
-}
-
-.btn:hover {
-  filter: brightness(1.12);
 }
 
 .btn:active {
@@ -31,16 +29,16 @@
 
 .btn:disabled {
   cursor: not-allowed;
-  filter: none;
-  opacity: 0.65;
+  opacity: 0.55;
 }
 
 .btn--pill {
   border-radius: 999px;
 }
 
+/* Fanvue's landing CTAs are slightly rounded rectangles. */
 .btn--rounded {
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .btn--block {
@@ -54,43 +52,67 @@
   font-size: 15px;
 }
 
-.btn--primary {
-  border-color: #f2a2f7b3;
-  background: linear-gradient(100deg, #7a1798 0%, #b526c4 45%, #e24be8 100%);
-  box-shadow:
-    0 0 18px #e31adf73,
-    inset 0 1px 0 #ffffff59,
-    inset 0 -6px 12px #5a0c7a66;
+.btn--primary,
+.btn--deep {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn--primary:not(:disabled):hover,
+.btn--deep:not(:disabled):hover {
+  background: var(--ink-hover);
+}
+
+.btn--brand {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+.btn--brand:not(:disabled):hover {
+  background: var(--brand-hover);
+}
+
+/* Destructive actions (Delete Account PDF): red pill, white capitals. */
+.btn--danger {
+  background: var(--danger);
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.btn--danger:not(:disabled):hover {
+  background: #bf1f3c;
 }
 
 .btn--outline {
-  border-color: #d67cf2;
-  background: #0f0b1acc;
-  box-shadow:
-    0 0 12px #c94df066,
-    inset 0 0 10px #c94df026;
+  border-color: var(--line);
+  background: var(--surface);
 }
 
-/* "Send again" on Check your email */
-.btn--deep {
-  border-color: var(--velvet-pink);
-  background: linear-gradient(100deg, #1d0f36, #43186f 60%, #6a1f9a);
-  box-shadow: 0 0 16px #e31adf66;
+.btn--outline:not(:disabled):hover {
+  border-color: #c4c4ca;
+  background: #f7f7f8;
 }
 
-/* "Login" in the public menu */
+/* Outlined button on the black marketing screens. */
 .btn--dark {
-  border-color: #343437;
-  background: #1b1b1d;
+  border-color: var(--night-line);
+  background: var(--night);
+  color: var(--night-text);
+}
+
+.btn--dark:not(:disabled):hover {
+  border-color: #5a5a5e;
+  background: var(--night-surface);
 }
 
 .spinner {
   width: 16px;
   height: 16px;
   flex: none;
-  border: 2px solid #ffffff55;
-  border-top-color: #fff;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
   border-radius: 50%;
+  opacity: 0.8;
   animation: spin 0.7s linear infinite;
 }
 
@@ -101,26 +123,26 @@
   gap: 10px;
   height: 38px;
   padding: 0 14px;
-  border: 1px solid #ffffff2e;
+  border: 0;
   border-radius: 8px;
-  background: #2a1c3fb3;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  color: #fff;
+  background: var(--field);
+  color: var(--ink);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
+.chip-button:hover {
+  background: var(--field-hover);
+}
+
 .chip-button--solid {
   height: 42px;
   padding: 0 18px;
-  border-color: #3a3a3d;
-  background: #2b2b2d;
   font-size: 15px;
 }
 
-/* ---------- TextInput / PasswordInput ---------- */
+/* ---------- TextInput / PasswordInput: borderless light-grey fields ---------- */
 .field__control {
   position: relative;
 }
@@ -128,14 +150,15 @@
 .field__input {
   width: 100%;
   height: 48px;
-  padding: 0 18px;
-  border: 1px solid #6b5580;
-  border-radius: 12px;
-  background: #231d30d9;
-  color: #fff;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--field);
+  color: var(--ink);
   font-size: 16px;
   outline: none;
   transition:
+    background-color 0.15s,
     border-color 0.15s,
     box-shadow 0.15s;
 }
@@ -145,28 +168,33 @@
 }
 
 .field__input::placeholder {
-  color: #b9aec8;
+  color: var(--subtle);
   opacity: 1;
 }
 
+.field__input:hover:not(:disabled) {
+  background: var(--field-hover);
+}
+
 .field__input:focus {
-  border-color: var(--velvet-pink);
-  box-shadow: 0 0 0 3px #e31adf33;
+  border-color: var(--brand);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px #7e21ef24;
 }
 
 .field__input:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
-/* Keep the dark field when the browser autofills saved credentials. */
+/* Keep the light field when the browser autofills saved credentials. */
 .field__input:-webkit-autofill {
-  -webkit-text-fill-color: #fff;
-  box-shadow: 0 0 0 1000px #231d30 inset;
-  caret-color: #fff;
+  -webkit-text-fill-color: var(--ink);
+  box-shadow: 0 0 0 1000px var(--field) inset;
+  caret-color: var(--ink);
 }
 
 .field--invalid .field__input {
-  border-color: #ff5c7a;
+  border-color: var(--danger);
 }
 
 .field__toggle {
@@ -180,14 +208,18 @@
   border: 0;
   border-radius: 8px;
   background: none;
-  color: #d9cfe6;
+  color: var(--muted);
   cursor: pointer;
   transform: translateY(-50%);
 }
 
+.field__toggle:hover {
+  color: var(--ink);
+}
+
 .field__error {
   margin: 6px 4px 0;
-  color: #ff8fa3;
+  color: var(--danger);
   font-size: 13px;
   line-height: 1.35;
 }
@@ -202,15 +234,15 @@
 }
 
 .form-message--error {
-  border-color: #ee083688;
-  background: #ee083622;
-  color: #ffb3c0;
+  border-color: #f3b8c3;
+  background: var(--danger-soft);
+  color: #a3172f;
 }
 
 .form-message--success {
-  border-color: #1fae5a88;
-  background: #1fae5a22;
-  color: #b4f2cf;
+  border-color: #a9dfbf;
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 /* ---------- ToggleSwitch ---------- */
@@ -222,14 +254,13 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: #4a4058;
+  background: #d4d4d8;
   cursor: pointer;
   transition: background 0.18s;
 }
 
 .toggle[aria-checked='true'] {
-  background: linear-gradient(90deg, #b026c9, #e44be8);
-  box-shadow: 0 0 10px #e31adf66;
+  background: var(--brand);
 }
 
 .toggle__thumb {
@@ -240,6 +271,7 @@
   height: 20px;
   border-radius: 50%;
   background: #fff;
+  box-shadow: 0 1px 3px #0000003d;
   transition: transform 0.18s;
 }
 
@@ -248,31 +280,23 @@
 }
 
 /* ---------- Shared bits ---------- */
-/* App mark tile in the top-left corner of photo screens */
-.app-mark {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  box-shadow: 0 0 14px #b13cf580;
-}
-
 .round-close {
   position: absolute;
   top: 14px;
   right: 14px;
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   place-items: center;
-  border: 1.5px solid var(--velvet-pink);
+  border: 1px solid var(--line);
   border-radius: 50%;
-  background: #150f20;
-  box-shadow: 0 0 12px #e31adf66;
-  color: #fff;
+  background: var(--surface);
+  color: var(--ink);
   cursor: pointer;
+}
+
+.round-close:hover {
+  background: var(--field);
 }
 
 /* DEMO_MODE shortcut to the simulated mailbox - not part of the mockup */
@@ -281,16 +305,16 @@
   top: 18px;
   right: 14px;
   padding: 6px 12px;
-  border: 1px dashed var(--velvet-pink);
+  border: 1px dashed var(--brand);
   border-radius: 999px;
-  background: #0d0b17d9;
-  color: #fff;
+  background: #ffffffe6;
+  color: var(--brand-strong);
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
 }
 
-/* ---------- HumanCheck (Cloudflare Turnstile placeholder) ---------- */
+/* ---------- HumanCheck (Cloudflare Turnstile placeholder, light theme) ---------- */
 .human-check-wrap {
   width: min(100%, 310px);
   margin: 0 auto;
@@ -302,13 +326,13 @@
   justify-content: space-between;
   height: 66px;
   padding: 0 12px;
-  border: 1px solid #3d3648;
+  border: 1px solid #e0e0e0;
   border-radius: 3px;
-  background: #1b1822;
+  background: #fafafa;
 }
 
 .human-check--invalid {
-  border-color: #ff5c7a;
+  border-color: var(--danger);
 }
 
 .human-check__box {
@@ -318,7 +342,7 @@
   padding: 6px 0;
   border: 0;
   background: none;
-  color: #e6e0ee;
+  color: #232323;
   font-size: 14.5px;
   cursor: pointer;
 }
@@ -328,13 +352,13 @@
   width: 24px;
   height: 24px;
   flex: none;
-  border: 2px solid #e6e0ee;
+  border: 2px solid #666;
   border-radius: 3px;
-  background: #222;
+  background: #fff;
 }
 
 .human-check__box--checking .human-check__mark {
-  border-color: #5c5568;
+  border-color: #d0d0d0;
   border-top-color: #f6821f;
   border-radius: 50%;
   background: none;
@@ -371,14 +395,14 @@
 }
 
 .human-check__brand-name {
-  color: #fff;
+  color: #232323;
   font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.14em;
 }
 
 .human-check__links {
-  color: #a79fb3;
+  color: #6d6d6d;
   font-size: 9.5px;
 }
 
@@ -386,7 +410,7 @@
   color: inherit;
 }
 
-/* ---------- PublicMenu (PDF p.3 right) ---------- */
+/* ---------- PublicMenu (PDF p.3 right) - white, like the sign-up page ---------- */
 .public-menu {
   position: absolute;
   z-index: 20;
@@ -395,7 +419,8 @@
   flex-direction: column;
   padding: 12px 14px 16px;
   overflow-y: auto;
-  background: #000;
+  background: var(--auth-background);
+  color: var(--ink);
 }
 
 .public-menu__header {
@@ -424,22 +449,22 @@
 }
 
 .public-menu__nav li + li {
-  border-top: 1px solid #2b2140;
+  border-top: 1px solid var(--divider);
 }
 
 .public-menu__nav a {
   display: block;
   padding: 0.2em 0;
-  color: #fff;
+  color: var(--ink);
   font-size: clamp(26px, min(10.6cqw, 5.7cqh), 50px);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1.2;
   text-decoration: none;
 }
 
 .public-menu__nav a:hover {
-  color: var(--velvet-link);
+  color: var(--brand-strong);
 }
 
 .public-menu__footer {
@@ -460,9 +485,9 @@
   flex: none;
   grid-template-columns: repeat(5, 1fr);
   padding: 8px 4px calc(6px + env(safe-area-inset-bottom));
-  border-top: 1px solid #ececf0;
-  background: #fff;
-  color: #77737d;
+  border-top: 1px solid var(--divider);
+  background: var(--surface);
+  color: var(--muted);
 }
 
 .bottom-nav__item {
@@ -483,8 +508,13 @@
   cursor: pointer;
 }
 
+.bottom-nav__item:not(.is-active):hover {
+  color: var(--ink);
+}
+
+/* Fanvue marks the active tab in black with a glow of the brand colour under it. */
 .bottom-nav__item.is-active {
-  color: #7b1fa2;
+  color: var(--ink);
   font-weight: 700;
   cursor: default;
 }
@@ -495,7 +525,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--velvet-fuchsia);
+  background: var(--brand);
+  box-shadow: 0 0 10px 3px #7e21ef59;
 }
 
 .bottom-nav__avatar {
@@ -505,8 +536,8 @@
   height: 28px;
   place-items: center;
   border-radius: 50%;
-  background: #dcdce0;
-  color: var(--velvet-light-text);
+  background: #e4e4e8;
+  color: var(--ink);
   font-size: 11.5px;
   font-weight: 700;
 }
@@ -538,7 +569,7 @@
   justify-content: flex-end;
   padding: 0;
   border: 0;
-  background: #0d0b1759;
+  background: #11111140;
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   color: #fff;
@@ -550,7 +581,10 @@
   flex-direction: column;
   gap: 4px;
   padding: 10px 5px 14px;
-  background: linear-gradient(135deg, #150d1f, #3a1250);
+  border-radius: 0 12px 0 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
   font-size: 10px;
   text-align: left;
 }
@@ -566,9 +600,9 @@
   padding: 26px 22px 24px 28px;
   overflow-y: auto;
   outline: none;
-  background: #fbfafc;
-  box-shadow: -8px 0 30px #00000059;
-  color: var(--velvet-light-text);
+  background: var(--surface);
+  box-shadow: -8px 0 30px #00000033;
+  color: var(--ink);
   animation: drawer-in 0.22s ease-out;
 }
 
@@ -594,8 +628,7 @@
   flex: none;
   place-items: center;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #3a1a52, #150c22);
-  box-shadow: 0 0 0 2px #d9a3ef;
+  background: var(--ink);
   color: #fff;
   font-size: 17px;
   font-weight: 700;
@@ -607,9 +640,9 @@
   right: 1px;
   width: 12px;
   height: 12px;
-  border: 2px solid #fbfafc;
+  border: 2px solid var(--surface);
   border-radius: 50%;
-  background: #22dd55;
+  background: #22c55e;
 }
 
 .drawer__identity {
@@ -626,11 +659,12 @@
 
 .drawer__name {
   font-size: 19px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .drawer__handle {
-  color: #6f6878;
+  color: var(--muted);
   font-size: 15px;
 }
 
@@ -643,7 +677,7 @@
 .drawer__list--divided {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid var(--velvet-light-divider);
+  border-top: 1px solid var(--divider);
 }
 
 .drawer__item {
@@ -665,7 +699,7 @@
 }
 
 .drawer__item:hover .drawer__label {
-  color: #7b1fa2;
+  color: var(--brand-strong);
 }
 
 .drawer__icon {
@@ -678,7 +712,8 @@
 }
 
 .drawer__icon--highlight {
-  background: #f1dbfa;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
 }
 
 .drawer__label {
@@ -688,8 +723,8 @@
 .drawer__balance {
   padding: 7px 16px;
   border-radius: 999px;
-  background: #5d4a66;
+  background: var(--ink);
   color: #fff;
   font-size: 14.5px;
-  font-weight: 500;
+  font-weight: 600;
 }

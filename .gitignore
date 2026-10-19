@@ -1,5 +1,53 @@
+# ---------- Dependencies ----------
 node_modules/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/releases
+
+# ---------- Build output ----------
 dist/
-*.local
-*.log
+build/
+coverage/
 .vite/
+*.tsbuildinfo
+
+# ---------- Environment ----------
+# .env.local holds the real client IDs; only the example file is committed.
+.env
+.env.*
+!.env.example
+*.local
+
+# ---------- Logs ----------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- Visual Studio ----------
+# Per-user IDE state (open files, search index, SQLite cache). Visual Studio
+# keeps these files locked and rewrites them constantly, which breaks commits
+# and pushes when they are tracked.
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+[Bb]in/
+[Oo]bj/
+
+# ---------- VS Code / JetBrains ----------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

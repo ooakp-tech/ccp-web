@@ -1,31 +1,52 @@
-/* Palette and gradients from the asset pack (visual-tokens.css), plus the
-   font stacks. Colours were sampled from the flattened PDF screens. */
+/* Theme modelled on the Fanvue fan sign-up screens ("Fanvue - Fan - Sign up
+   Process - 9.15.26.pdf"), with the VELVET FX purple in place of Fanvue green:
+   - app screens are light: white page, soft purple glow behind the logo,
+     light-grey filled inputs, black primary pills, white outlined pills;
+   - marketing screens (landing, public menu) are black with purple CTAs. */
 :root {
-  --velvet-bg: #0d0b17;
-  --velvet-surface: #191421;
-  --velvet-field: #231d30;
-  --velvet-text: #faf7ff;
-  --velvet-muted: #c3b9d1;
-  --velvet-violet: #7e21ef;
-  --velvet-fuchsia: #e31adf;
-  --velvet-border: #694274;
-  --velvet-light-surface: #ffffff;
-  --velvet-light-text: #17121f;
-  --velvet-light-divider: #eae5ed;
-  --velvet-danger: #ee0836;
-  --velvet-action-gradient: linear-gradient(115deg, #7717e9, #b411d4 55%, #f12ce0);
-  --velvet-heading-gradient: linear-gradient(90deg, #b03cfa, #fa47da);
-  --velvet-auth-background:
-    radial-gradient(ellipse at 100% 15%, #6a126146, transparent 48%),
-    radial-gradient(ellipse at 0% 75%, #71106366, transparent 50%),
-    linear-gradient(135deg, #181123, #0d0b17 55%, #231029);
-  --velvet-action-glow: 0 0 18px #e31adf66;
+  /* Brand purple (replaces Fanvue green). */
+  --brand: #7e21ef;
+  --brand-hover: #6c14d8;
+  --brand-strong: #5b12b8; /* purple text on white (links, active tab) */
+  --brand-soft: #f1e8fe; /* tinted surfaces: selected tab, icon chips */
+  --brand-glow: #b98af766; /* glow behind the auth logo */
+  --on-brand: #ffffff;
 
-  --velvet-pink: #e879f9;
-  --velvet-link: #f07cf5;
+  /* Light screens */
+  --page: #ffffff;
+  --surface: #ffffff;
+  --field: #f4f4f5;
+  --field-hover: #ececee;
+  --ink: #111111; /* text and the black primary button */
+  --ink-hover: #2a2a2a;
+  --muted: #6b6b70;
+  --subtle: #8e8e93;
+  --line: #d9d9de; /* outlined buttons */
+  --divider: #ececf0;
+
+  /* Dark screens (landing, public menu) */
+  --night: #000000;
+  --night-surface: #1c1c1e;
+  --night-line: #3a3a3d;
+  --night-text: #ffffff;
+  --night-muted: #a1a1a6;
+
+  --danger: #e11d48;
+  --danger-soft: #fdecef;
+  --success: #15803d;
+  --success-soft: #e9f7ef;
+  --caution-soft: #fff7df;
+  --caution: #8a5a00;
+  --caution-icon: #e0a106;
+
+  --auth-background:
+    radial-gradient(90% 38% at 50% 0%, var(--brand-glow), transparent 72%),
+    radial-gradient(60% 22% at 50% 4%, #e3d0fd, transparent 70%),
+    var(--page);
 
   --font-ui: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Montserrat Variable', 'Montserrat', var(--font-ui);
+  /* Fanvue uses one grotesque face for headings and UI; Inter fills both roles. */
+  --font-display: var(--font-ui);
 
   /* Width of the phone column the mobile mockup is rendered in below the desktop breakpoint. */
   --shell-max-width: 480px;

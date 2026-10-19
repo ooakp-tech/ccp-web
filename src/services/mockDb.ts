@@ -62,3 +62,9 @@ export function saveUser(user: MockUserRecord): void {
   users[normalizeEmail(user.email)] = user
   writeAll(users)
 }
+
+export function deleteUser(email: string): void {
+  const users = readAll()
+  delete users[normalizeEmail(email)]
+  writeAll(users)
+}

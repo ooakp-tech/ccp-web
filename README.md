@@ -1,7 +1,8 @@
-# VELVET FX – Fan sign-up flow (React frontend)
+# VELVET FX – Fan sign-up and delete-account flows (React frontend)
 
-React + TypeScript implementation of the mobile mockup
-`VELVET FX - FAN - Sign up Process - with email and password - 10.1.26.pdf`.
+React + TypeScript implementation of the mobile mockups
+`VELVET FX - FAN - Sign up Process - with email and password - 10.1.26.pdf` and
+`VELVET FX - FAN - Delete Account Process - 10.4.26.pdf`.
 Frontend only: every backend call is a mocked placeholder in `src/services/api.ts`.
 `npm run build` produces a static bundle (`dist/`) that is published to IIS as-is.
 
@@ -39,6 +40,24 @@ End to end: **Landing → Sign Up as a Fan → e-mail + password → Sign Up →
 `/home` serves two screens because both mockup screenshots show `velvetfx.com/home`:
 signed in → home, signed up but unverified → "Check your email", otherwise → redirect to `/signin`.
 
+### Delete account flow
+
+`VELVET FX - FAN - Delete Account Process - 10.4.26.pdf` (pages 1, 2 and 7 are title slides):
+
+| PDF page | Screen | Route | Component |
+| --- | --- | --- | --- |
+| 3 | Sign in (Google in the mockup), then Home | `/signin` → `/home` | existing screens |
+| 4 left/centre | Home → "Menu" tab → account drawer → **Settings** | `/home` (overlay) | `components/AccountDrawer` |
+| 4 right | Settings – 7 rows, Display & Language toggles, × | `/settings` | `pages/SettingsPage` |
+| 5 left | Account – Account Info, Password and security, **Delete my account** | `/settings/account` | `pages/AccountSettingsPage` |
+| 5 centre | Delete my account – warning, caution box, **DELETE ACCOUNT** | `/settings/account/delete` | `pages/DeleteAccountPage` |
+| 5 right | "Why are you deleting your account?" pop-up, optional reason, **DELETE MY ACCOUNT** | same (overlay) | `components/DeleteReasonSheet` |
+| 6 | Account deleted, back on sign-in | `/signin` | `pages/SignInPage` |
+
+End to end: **Home → Menu → Settings → Account → Delete my account → DELETE ACCOUNT → reason →
+DELETE MY ACCOUNT → Sign-in** (the account is gone; signing in with it fails). The settings
+screens require a signed-in user; anyone else is sent to `/signin`.
+
 Registration data travels between steps through `context/SessionContext` (pending e-mail,
 Stay Updated choice, signed-in user), mirrored to `sessionStorage` so a page refresh keeps the user
 in the flow. Passwords are never stored there.
@@ -50,7 +69,7 @@ index.html
 vite.config.ts            base path + build output (dist/, hashed files in dist/static)
 public/
   web.config              IIS: SPA rewrite, MIME types, cache headers (copied into dist/)
-  assets/                 logos, icons, photos from the asset pack (copied into dist/assets)
+  assets/                 logos, icons (and currently unused photos) from the asset pack
 src/
   index.tsx               entry: fonts, styles, <App />
   App.tsx                 BrowserRouter + SessionProvider + phone-width shell
@@ -68,7 +87,8 @@ src/
     validation.ts         e-mail / password rules
   components/             Button, TextInput, PasswordInput, ToggleSwitch, SocialButtons,
                           AuthLayout, PublicMenu, AccountDrawer, BottomNav, HumanCheck,
-                          BrandLogo, Icon, Picture, useOverlay
+                          SignedInLayout, Settings (rows), DeleteReasonSheet,
+                          BrandLogo, Icon, Picture, useOverlay, useLogout
   pages/                  one file per screen (see table above) + PlaceholderPage
   styles/                 tokens.css, base.css, components.css, screens.css (mockup layout),
                           desktop.css (full-width layout from 1024px)
@@ -81,12 +101,13 @@ screens, controls and assets. It applies from 1024px wide and does not change th
 
 | Screen | Desktop layout |
 | --- | --- |
-| Landing | Copy and buttons on the left, photo on the right. From 1280px the menu links sit in the header next to a "Login" button; below that the "Menu" button opens the overlay. |
-| Sign up / Sign in | Photo and headline on the left, the form on the right. |
-| Check your email | Photo on the left, the dialog as a card on the right. |
+| Landing | Centred logo, headline and buttons on the white page. From 1280px the menu links sit in the header next to a "Login" button; below that the "Menu" button opens the overlay. |
+| Sign up / Sign in | One centred form column under the logo. |
+| Check your email | Logo on top, the dialog as a centred card. |
 | Verification e-mail | Centred reading column. |
-| Home | The tab bar becomes a top bar with the logo; hero copy left, photo right; the three Elite Creators cards sit side by side. |
+| Home | The tab bar becomes a top bar with the logo; centred hero copy; the three Elite Creators cards sit side by side. |
 | Account drawer | 400px panel on the right over a dimmed page. |
+| Settings, Account, Delete my account | 680px centred column under the top bar; the reason pop-up becomes a centred dialog. |
 
 ## Plugging in the real API
 
@@ -99,8 +120,10 @@ naming the endpoint it stands in for:
 | `resendVerificationEmail` | Send again | `POST /api/auth/resend-verification` |
 | `verifyEmail` | e-mail link | `POST /api/auth/verify-email` |
 | `signIn` | Sign In button | `POST /api/auth/login` |
-| `signInWithProvider` | Continue with Google / X | OAuth flow + `POST /api/auth/external/{provider}` |
+| `completeExternalSignIn` | return from Google / X | `POST /api/auth/external/{provider}` (see below) |
+| `signInWithProvider` | Continue with Google / X when no client ID is set | none – delete once both providers are configured |
 | `signOut` | Logout | `POST /api/auth/logout` |
+| `deleteAccount` | DELETE MY ACCOUNT (reason pop-up) | `DELETE /api/account` with `{ reason }` |
 | `verifyHumanChallenge` | "Verify you are human" | replace `HumanCheck` with the real Cloudflare Turnstile widget |
 | `getVerificationMessage` | demo inbox | none – delete with the demo inbox |
 
@@ -109,6 +132,33 @@ Keep throwing `ApiError` with the existing codes (`EMAIL_TAKEN`, `INVALID_CREDEN
 `mockDb.ts`, set `DEMO_MODE = false` in `src/config.ts` (removes `/mock-inbox` and its shortcut on
 the "Check your email" screen), and load the signed-in user from the API instead of
 `sessionStorage` in `SessionContext`.
+
+## Google and X sign-in
+
+"Continue with Google" and "Continue with X" (sign-up and sign-in) use the providers' real
+consent screens once a client ID is set. Copy `.env.example` to `.env.local` and fill in:
+
+| Variable | Where to get it | Redirect URI to register |
+| --- | --- | --- |
+| `VITE_GOOGLE_CLIENT_ID` | Google Cloud console → Credentials → OAuth client ID (Web application) | `https://<server>/auth/callback/google` (and `http://localhost:5173/...` for dev) |
+| `VITE_X_CLIENT_ID` | X developer portal → app → User authentication settings (OAuth 2.0, Web App) | `https://<server>/auth/callback/x` (X may refuse `localhost`; use `http://127.0.0.1:5173/...`) |
+
+The values are baked in at build time, so set them before `npm run build`. An empty value keeps
+that provider simulated. Only client IDs go here; client secrets belong to the API.
+
+How it works (`src/services/oauth.ts`, `pages/OAuthCallbackPage`):
+
+- **Google**: OpenID Connect redirect with `response_type=id_token`, plus `state` and `nonce`.
+  Google returns a signed ID token to `/auth/callback/google`.
+- **X**: OAuth 2.0 authorization code with PKCE. X returns a one-time code to `/auth/callback/x`.
+- The callback page checks `state`, then calls `completeExternalSignIn`, which is where
+  `POST /api/auth/external/{provider}` goes. The backend must validate the Google ID token
+  (`GoogleJsonWebSignature.ValidateAsync`, audience = client ID, matching nonce) and, for X,
+  exchange the code (`POST https://api.x.com/2/oauth2/token`) and read `GET /2/users/me`. X does
+  not allow that exchange from a browser, so it has to happen on the server.
+
+Until the API exists, the mock reads the Google token's name and e-mail without checking its
+signature, and signs X users in as a demo fan because the code cannot be exchanged.
 
 ## Deploying to IIS
 
@@ -143,11 +193,41 @@ The PDF leaves these open; each is also marked with an `ASSUMPTION` comment in t
 - **Send again** requires the human check first; **Change email** returns to sign-up with the
   address prefilled; the dialog's **×** returns to the landing screen.
 - **"Join VELVET FX"** on the sign-in screen opens the sign-up screen.
-- **Google / X** sign-in is simulated: it skips the provider's account chooser and signs in a
-  demo fan.
-- **Fonts**: the PDF's font files were not supplied; Inter (UI) and Montserrat (headlines) are
-  bundled locally (no CDN) as the closest open-licensed match.
-- **Photos and logos** come from the supplied asset pack, which replaces the people in the
-  mockup screenshots with newly generated artwork and uses the current official Google icon.
+- **Google / X** sign-in goes through the real providers when client IDs are configured (see
+  "Google and X sign-in"); otherwise it is simulated and signs in a demo fan. Social accounts
+  skip e-mail verification and keep the "Stay Updated" choice. A failed or cancelled attempt
+  shows a short message with a link back to the screen it started from (not in the PDF).
+- **Visual theme** (since 2026-10-19) follows the Fanvue fan sign-up screens
+  (`Fanvue - Fan - Sign up Process - 9.15.26.pdf`) with the VELVET FX purple (`--brand`,
+  `#7e21ef`) in place of Fanvue green. The screens and flow still come from the VELVET FX PDF;
+  only the look changed. Every screen, landing and menu included, uses the sign-up page's look:
+  white page with a soft purple glow behind the centred stacked logo, borderless light-grey
+  inputs, black primary pills ("Sign Up", "Sign In", "Send again", menu "Login"), white outlined
+  pills (Google, X, secondary links), purple creator CTAs, links, focus rings, toggle and active
+  tab marker. All colours are tokens in `src/styles/tokens.css`. The screens use the `-ink`
+  versions of the logos in `public/assets/brand/` (same artwork, dark "VELVET" lettering)
+  through `<BrandLogo onLight />`.
+- **No photos** (since 2026-10-19, at the user's request): the landing, sign-up/sign-in
+  (desktop), check-email and home hero photos were removed and replaced by the centred logo.
+  The three Elite Creators cards on home are empty placeholder tiles until real creator content
+  exists. The photo files are still in `public/assets/` and `components/Picture` is kept for
+  when photos come back; only the logos, the Google/X icons and the mock e-mail's logos are
+  still shown.
+- **Fonts**: the PDF's font files were not supplied; Inter is bundled locally (no CDN) for both
+  headings and UI, as the closest open-licensed match to Fanvue's grotesque.
+- **Logos and icons** come from the supplied asset pack, including the current official Google icon.
 - A one-line "Your email is verified" notice on the sign-in screen is not in the PDF.
+- **Delete account flow** (Delete Account PDF):
+  - rows the mockup crosses out in red ("not set up yet") still work as links to the
+    placeholder page: Become a creator, Payments and subscriptions, Notifications, Privacy and
+    safety, Help terms and support, Account Info, Password and security settings. "Log out" logs
+    out. The NSFW Contents and Dark mode switches toggle but change nothing yet;
+  - the tab bar, also crossed out on the Settings screen, is kept on all three settings screens
+    (no tab selected) so Home and the drawer stay reachable;
+  - Settings × returns to home; the < buttons go back one level (Account → Settings,
+    Delete my account → Account);
+  - the reason is optional; the pop-up closes with ×, Escape or a tap outside it, except while
+    the delete request runs;
+  - after deleting, sign-in shows a one-line "Your account has been deleted." notice (not in the
+    PDF). The mock removes the account from `mockDb`, so signing in with it again fails.
 - **Desktop layout** is not in the PDF; see "Desktop layout" above.

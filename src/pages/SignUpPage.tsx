@@ -10,6 +10,7 @@ import { ToggleSwitch } from '../components/ToggleSwitch'
 import { useSession } from '../context/SessionContext'
 import { PATHS, PLACEHOLDER_ROUTES } from '../routes/paths'
 import { registerUser, signInWithProvider } from '../services/api'
+import { beginOAuth, isProviderConfigured } from '../services/oauth'
 import type { SocialProvider } from '../types'
 import { validateEmail, validateNewPassword } from '../utils/validation'
 
@@ -52,6 +53,9 @@ export function SignUpPage() {
     setFormError(undefined)
     setSocialBusy(provider)
     try {
+      // Real OAuth: leaves for the provider and comes back to OAuthCallbackPage.
+      // "Stay Updated" survives the round trip in the session.
+      if (isProviderConfigured(provider)) await beginOAuth(provider, PATHS.signUp)
       // Social accounts arrive already verified, so they skip the e-mail step.
       session.signInAs(await signInWithProvider(provider))
       navigate(PATHS.home)

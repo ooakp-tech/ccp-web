@@ -20,6 +20,14 @@ export interface Credentials {
 
 export type SocialProvider = 'google' | 'x'
 
+/**
+ * What the provider hands back after its consent screen, ready to be sent to
+ * the backend (see services/oauth.ts).
+ */
+export type ExternalAuthResult =
+  | { provider: 'google'; idToken: string; nonce: string }
+  | { provider: 'x'; code: string; codeVerifier: string; redirectUri: string }
+
 /** The verification e-mail as shown on PDF page 5 (demo inbox only). */
 export interface VerificationMessage {
   to: string
