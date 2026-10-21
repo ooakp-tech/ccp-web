@@ -70,6 +70,9 @@ export function AccountDrawer({ open, user, loggingOut, onClose, onLogout }: Acc
           <span className="drawer__identity">
             <span className="drawer__name">{user.displayName}</span>
             <span className="drawer__handle">@{user.handle}</span>
+            <span className={`drawer__role drawer__role--${user.role === 'creator' ? 'creator' : 'fan'}`}>
+              {user.role === 'creator' ? 'Creator' : 'Fan'}
+            </span>
           </span>
         </div>
 

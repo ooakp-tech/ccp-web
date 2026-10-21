@@ -668,6 +668,27 @@
   font-size: 15px;
 }
 
+/* Account type under the handle, so a signed-in user can tell fan from creator. */
+.drawer__role {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.drawer__role--creator {
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+.drawer__role--fan {
+  background: var(--field);
+  color: var(--muted);
+}
+
 .drawer__list {
   margin: 0;
   padding: 0;
