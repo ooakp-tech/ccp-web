@@ -18,6 +18,13 @@ const GROUP_FAN: DrawerLink[] = [
   { icon: 'subscriptions', route: PLACEHOLDER_ROUTES.subscriptions },
 ]
 
+/** "Join as a Creator" is for fans only: a creator already is one. */
+function groupFor(user: User): DrawerLink[] {
+  return user.role === 'creator'
+    ? GROUP_FAN.filter((link) => link.route !== PLACEHOLDER_ROUTES.joinAsCreator)
+    : GROUP_FAN
+}
+
 const GROUP_APP: DrawerLink[] = [
   // Settings is a real screen since the Delete Account PDF (10.4.26).
   { icon: 'settings', route: { path: PATHS.settings, title: 'Settings' } },
@@ -87,7 +94,7 @@ export function AccountDrawer({ open, user, loggingOut, onClose, onLogout }: Acc
         </ul>
 
         <ul className="drawer__list drawer__list--divided">
-          {GROUP_FAN.map((link) => (
+          {groupFor(user).map((link) => (
             <DrawerItem key={link.route.path} {...link} />
           ))}
         </ul>

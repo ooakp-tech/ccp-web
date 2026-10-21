@@ -57,6 +57,8 @@ function RequireUser({ render }: { render: (user: User) => JSX.Element }) {
 function Placeholder({ route }: { route: PlaceholderRoute }) {
   const { user } = useSession()
   if (route.requiresAuth && !user) return <Navigate to={PATHS.signIn} replace />
+  // Only fans can join as a creator; a creator following an old link goes home.
+  if (route === PLACEHOLDER_ROUTES.joinAsCreator && user?.role === 'creator') return <Navigate to={PATHS.home} replace />
   return <PlaceholderPage title={route.title} />
 }
 

@@ -35,7 +35,9 @@ export function SettingsPage({ user }: { user: User }) {
         <SettingsHeader title="Settings" kind="close" to={PATHS.home} label="Close settings" />
 
         <SettingsCard label="Settings">
-          <SettingsLinkRow icon="earn" label="Become a creator" to={PLACEHOLDER_ROUTES.joinAsCreator.path} />
+          {user.role !== 'creator' && (
+            <SettingsLinkRow icon="earn" label="Become a creator" to={PLACEHOLDER_ROUTES.joinAsCreator.path} />
+          )}
           <SettingsLinkRow icon="account" label="Account" to={PATHS.accountSettings} />
           <SettingsLinkRow
             icon="payment-card"
