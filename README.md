@@ -174,7 +174,6 @@ Not in the API yet, so still mock-only or unavailable:
 
 - **E-mail verification** (Check your email, Send again, Verify your account): the API activates
   fans immediately, so with the API, Sign Up goes straight to Home.
-- **X sign-in**: no endpoint; the button says it is not available yet.
 - **"Stay Updated"** and the **delete reason** have no fields in the API.
 - The JWT lives in `sessionStorage` with the rest of the session (one tab, until it closes).
 
@@ -185,6 +184,9 @@ API changes made for VELVET FX (2026-10-19, need a re-publish of the API):
   recover, which can be removed once the fixed API is live.
 - `POST api/Visitor/google` + `GoogleSettings:ClientId` in `appsettings.json` + package
   `Google.Apis.Auth`: verifies the Google ID token and signs in, or creates, the fan.
+- `POST api/Visitor/x` and `POST api/Creator/x` + `XSettings:ClientId` / `XSettings:ClientSecret`
+  (added 2026-10-24): exchange X's one-time code with X, read the account's confirmed e-mail and
+  then follow the same rules as Google (`Services/XOAuthClient.cs`).
 - Swagger UI loads `swagger/v1/swagger.json` relative to itself (it used to fetch the React site's
   `index.html`).
 ## Google and X sign-in
@@ -200,27 +202,39 @@ consent screens once a client ID is set. Copy `.env.example` to `.env.local` and
 The values are baked in at build time, so set them before `npm run build`. An empty value keeps
 that provider simulated. Only client IDs go here; client secrets belong to the API.
 
-**Deployed builds (GitHub Actions → velvet.love):** `.env.local` is git-ignored, so the workflow
-(`.github/workflows/deploy.yml`) reads the same names from the repository's Actions **variables**
-(Settings → Secrets and variables → Actions → Variables → `VITE_GOOGLE_CLIENT_ID`,
-`VITE_X_CLIENT_ID`). Without them the live site silently uses the simulated sign-in, which jumps
-straight to `/home` as a demo fan. Google only accepts `https` redirect URIs outside `localhost`,
-so the site needs a certificate on IIS before `https://velvet.love/auth/callback/google` can be
-registered.
+**Deployed builds (GitHub Actions → velvet.love):** the public client IDs are committed in
+`.env.production`. Do not set `VITE_*` under `env:` in `deploy.yml`: a missing Actions variable
+arrives as an empty string and overrides the file. Google only accepts `https` redirect URIs
+outside `localhost`.
+
+**Turning on X** (developer portal → your app → User authentication settings):
+
+1. App type **Web App** (confidential client), permissions **Read**, and switch on
+   **Request email from users** (X then asks for a privacy policy and terms URL).
+2. Callback URIs: `https://velvet.love/auth/callback/x` and, for dev,
+   `http://127.0.0.1:5173/auth/callback/x` (open the dev site on 127.0.0.1, not localhost).
+3. Keys and tokens → OAuth 2.0 Client ID → `VITE_X_CLIENT_ID` in `.env.production` (and
+   `.env.local`), then push.
+4. Client ID **and** Client Secret → `XSettings` in the API's server-only
+   `appsettings.Production.json`, then re-publish the API.
+
+Sign-in fails with "Your X account has no confirmed e-mail address" if the X account has none or
+the e-mail permission is off, because VELVET FX accounts are keyed by e-mail.
 
 How it works (`src/services/oauth.ts`, `pages/OAuthCallbackPage`):
 
 - **Google**: OpenID Connect redirect with `response_type=id_token`, plus `state` and `nonce`.
   Google returns a signed ID token to `/auth/callback/google`.
 - **X**: OAuth 2.0 authorization code with PKCE. X returns a one-time code to `/auth/callback/x`.
-- The callback page checks `state`, then calls `completeExternalSignIn`, which is where
-  `POST /api/auth/external/{provider}` goes. The backend must validate the Google ID token
-  (`GoogleJsonWebSignature.ValidateAsync`, audience = client ID, matching nonce) and, for X,
-  exchange the code (`POST https://api.x.com/2/oauth2/token`) and read `GET /2/users/me`. X does
-  not allow that exchange from a browser, so it has to happen on the server.
+- The callback page checks `state`, then calls `completeExternalSignIn`, which posts to
+  `/Visitor/google` or `/Visitor/x` (`/Creator/...` from the creator sign-up). The API validates
+  the Google ID token (`GoogleJsonWebSignature.ValidateAsync`, audience = client ID, matching
+  nonce) or, for X, exchanges the code (`POST https://api.x.com/2/oauth2/token` with the PKCE
+  verifier) and reads `GET /2/users/me?user.fields=confirmed_email`. X does not allow that
+  exchange from a browser, so it happens on the server.
 
-Until the API exists, the mock reads the Google token's name and e-mail without checking its
-signature, and signs X users in as a demo fan because the code cannot be exchanged.
+With the mock (`VITE_API_BASE_URL` empty), Google's token is read without checking its signature,
+and X users are signed in as a demo fan because the code cannot be exchanged.
 
 ## Deploying to IIS
 

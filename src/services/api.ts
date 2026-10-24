@@ -8,6 +8,7 @@
  *   Sign Up                          POST  /Visitor                 { name, user: { login, password } }
  *   Sign In                          POST  /Auth/login              { login, password }
  *   Continue with Google             POST  /Visitor/google          { idToken, nonce }
+ *   Continue with X                  POST  /Visitor/x               { code, codeVerifier, redirectUri }
  *   Forgot password?                 POST  /Auth/forgetpassword     { email, url }
  *   Reset password (e-mail link)     POST  /Auth/changepassword     { hash, password }
  *   DELETE MY ACCOUNT                PATCH /Visitor/deactivate      (Bearer token)
@@ -349,8 +350,10 @@ function decodeJwtPayload(jwt: string): Record<string, unknown> {
  * Finishes a real Google / X sign-in after the provider redirected back.
  * Google, API: POST /Visitor/google { idToken, nonce } - the server verifies the
  * token and signs in, or creates, the fan with that e-mail.
- * X: the API has no endpoint yet (it would have to exchange the code with
- * POST https://api.x.com/2/oauth2/token server-side).
+ * X, API: POST /Visitor/x { code, codeVerifier, redirectUri } - the server
+ * exchanges the code with X (X does not allow that from a browser), reads the
+ * account's confirmed e-mail, then follows the same rules as Google.
+ * Creator sign-up uses /Creator/google and /Creator/x with the same bodies.
  */
 export async function completeExternalSignIn(
   result: ExternalAuthResult,
@@ -360,19 +363,22 @@ export async function completeExternalSignIn(
   void marketingOptIn // TODO: the API has no "Stay Updated" field yet
   if (USE_MOCK_API) return mockCompleteExternalSignIn(result, role)
 
-  if (result.provider !== 'google') {
-    throw new ApiError('NOT_SUPPORTED', 'Sign-in with X is not available yet. Please use Google or your email.')
-  }
-  const body = { idToken: result.idToken, nonce: result.nonce }
-  const fallbackEmail = () => String(decodeJwtPayload(result.idToken).email ?? '')
+  const name = result.provider === 'x' ? 'X' : 'Google'
+  const body =
+    result.provider === 'google'
+      ? { idToken: result.idToken, nonce: result.nonce }
+      : { code: result.code, codeVerifier: result.codeVerifier, redirectUri: result.redirectUri }
+  // Google's token carries the e-mail; used only if the API response leaves it out.
+  const fallbackEmail = () => (result.provider === 'google' ? String(decodeJwtPayload(result.idToken).email ?? '') : '')
   try {
     if (role === 'creator') {
-      // Creator sign-up (Creator PDF p.4): POST /Creator/google
-      const session = await apiRequest<ApiCreatorSession>('/Creator/google', { method: 'POST', body })
+      // Creator sign-up (Creator PDF p.4): POST /Creator/google or /Creator/x
+      const session = await apiRequest<ApiCreatorSession>(`/Creator/${result.provider}`, { method: 'POST', body })
+      if (!session.token) throw new ApiError('UNKNOWN', `${name} sign-in did not complete. Please try again.`)
       return fromToken(session.email || fallbackEmail(), session.token)
     }
-    const visitor = await apiRequest<ApiVisitor>('/Visitor/google', { method: 'POST', body })
-    if (!visitor.token) throw new ApiError('UNKNOWN', 'Google sign-in did not complete. Please try again.')
+    const visitor = await apiRequest<ApiVisitor>(`/Visitor/${result.provider}`, { method: 'POST', body })
+    if (!visitor.token) throw new ApiError('UNKNOWN', `${name} sign-in did not complete. Please try again.`)
     return fromToken(visitor.user?.login ?? fallbackEmail(), visitor.token)
   } catch (error) {
     throw toApiError(error)

@@ -27,7 +27,9 @@ const PENDING_KEY = 'velvetfx.oauth'
 const GOOGLE_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 const X_AUTHORIZE_URL = 'https://x.com/i/oauth2/authorize'
 // users.read is the minimum for GET /2/users/me and X requires tweet.read with it.
-const X_SCOPES = 'users.read tweet.read'
+// users.email lets the API read the account's confirmed e-mail (accounts are keyed
+// by e-mail); the X app must have "Request email from users" switched on.
+const X_SCOPES = 'users.read tweet.read users.email'
 
 /** What we remember across the redirect (sessionStorage, same tab only). */
 interface PendingOAuth {
